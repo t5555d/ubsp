@@ -14,10 +14,10 @@ NAMESPACE_UBSP_BEGIN;
 struct syntax_node_i
 {
     virtual ~syntax_node_i() {}
-    virtual void process(syntax_processor_i *) const = 0;
+    virtual void process(syntax_processor_i&) const = 0;
 };
 
-#define PROCESS_IMPL virtual void process(syntax_processor_i *p) const override { p->process(this); }
+#define PROCESS_IMPL virtual void process(syntax_processor_i& p) const override { p.process(*this); }
 
 // abstract statement
 struct statement_i : syntax_node_i {
@@ -199,7 +199,7 @@ public:
     syntax_t();
 
     void load(const char *syntax_file);
-    void process(syntax_processor_i *processor) {
+    void process(syntax_processor_i& processor) {
         root.process(processor);
     }
 

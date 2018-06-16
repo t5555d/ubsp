@@ -46,22 +46,22 @@ typedef const expression_i *expr_p;
 
 struct syntax_processor_i
 {
-    virtual void process(const const_expr_t *) = 0;
-    virtual void process(const lval_expr_t *) = 0;
-    virtual void process(const chng_expr_t *) = 0;
-    virtual void process(const incr_expr_t *) = 0;
-    virtual void process(const unary_oper_t *) = 0;
-    virtual void process(const binary_oper_t *) = 0;
-    virtual void process(const cond_expr_t *) = 0;
-    virtual void process(const call_expr_t *) = 0;
-    virtual void process(const root_stmt_t *) = 0;
-    virtual void process(const exit_stmt_t *) = 0;
-    virtual void process(const expr_stmt_t *) = 0;
-    virtual void process(const cond_stmt_t *) = 0;
-    virtual void process(const loop_stmt_t *) = 0;
-    virtual void process(const for_loop_stmt_t *) = 0;
-    virtual void process(const load_stmt_t *) = 0;
-    virtual void process(const func_defn_t *) = 0;
+    virtual void process(const const_expr_t&) = 0;
+    virtual void process(const lval_expr_t&) = 0;
+    virtual void process(const chng_expr_t&) = 0;
+    virtual void process(const incr_expr_t&) = 0;
+    virtual void process(const unary_oper_t&) = 0;
+    virtual void process(const binary_oper_t&) = 0;
+    virtual void process(const cond_expr_t&) = 0;
+    virtual void process(const call_expr_t&) = 0;
+    virtual void process(const root_stmt_t&) = 0;
+    virtual void process(const exit_stmt_t&) = 0;
+    virtual void process(const expr_stmt_t&) = 0;
+    virtual void process(const cond_stmt_t&) = 0;
+    virtual void process(const loop_stmt_t&) = 0;
+    virtual void process(const for_loop_stmt_t&) = 0;
+    virtual void process(const load_stmt_t&) = 0;
+    virtual void process(const func_defn_t&) = 0;
 };
 
 

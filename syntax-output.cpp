@@ -35,7 +35,7 @@ syntax_output_t& syntax_output_t::operator<<(expr_p expr)
     auto inner_priority = expr->get_priority();
     this->priority = inner_priority;
     if (inner_priority < outer_priority) out << "(";
-    expr->process(this);
+    expr->process(*this);
     if (inner_priority < outer_priority) out << ")";
     this->priority = outer_priority;
     return *this;
@@ -44,7 +44,7 @@ syntax_output_t& syntax_output_t::operator<<(expr_p expr)
 syntax_output_t& syntax_output_t::operator<<(stmt_p stmt)
 {
     if (stmt) 
-        stmt->process(this);
+        stmt->process(*this);
     return *this;
 }
 
@@ -67,65 +67,65 @@ const char *to_string(scope_exit_type_t type)
 
 // expressions:
 
-void syntax_output_t::process(const const_expr_t *value) { out << value->value; }
-void syntax_output_t::process(const lval_expr_t *value) { *this << value->lval; }
-void syntax_output_t::process(const call_expr_t *value) { *this << value->call; }
+void syntax_output_t::process(const const_expr_t& node) { out << node.value; }
+void syntax_output_t::process(const lval_expr_t& node) { *this << node.lval; }
+void syntax_output_t::process(const call_expr_t& node) { *this << node.call; }
 
-void syntax_output_t::process(const chng_expr_t *value)
+void syntax_output_t::process(const chng_expr_t& node)
 {
-    auto& info = get_operator_info(value->type);
-    *this << value->lval << " " << info.text << "= " << value->value;
+    auto& info = get_operator_info(node.type);
+    *this << node.lval << " " << info.text << "= " << node.value;
 }
 
-void syntax_output_t::process(const incr_expr_t *value)
+void syntax_output_t::process(const incr_expr_t& node)
 {
-    auto& info = get_operator_info(value->type);
-    if (value->postfix)
-        *this << value->lval << info.text << info.text;
+    auto& info = get_operator_info(node.type);
+    if (node.postfix)
+        *this << node.lval << info.text << info.text;
     else
-        *this << info.text << info.text << value->lval;
+        *this << info.text << info.text << node.lval;
 }
 
-void syntax_output_t::process(const unary_oper_t *value)
+void syntax_output_t::process(const unary_oper_t& node)
 {
-    auto& info = get_operator_info(value->type);
-    *this << info.text << value->operand;
+    auto& info = get_operator_info(node.type);
+    *this << info.text << node.operand;
 }
 
-void syntax_output_t::process(const binary_oper_t *value)
+void syntax_output_t::process(const binary_oper_t& node)
 {
-    auto& info = get_operator_info(value->type);
-    *this << value->left << " " << info.text << " ";
+    auto& info = get_operator_info(node.type);
+    *this << node.left << " " << info.text << " ";
     priority++; // left associativity
-    *this << value->right;
+    *this << node.right;
 }
 
-void syntax_output_t::process(const cond_expr_t *value)
+void syntax_output_t::process(const cond_expr_t& node)
 {
     priority++;
-    *this << value->cond << " ? " << value->expr_true;
+    *this << node.cond << " ? " << node.expr_true;
     priority--;
-    *this << " : " << value->expr_false;
+    *this << " : " << node.expr_false;
 }
 
 // statements:
 
-void syntax_output_t::process(const root_stmt_t *value)
+void syntax_output_t::process(const root_stmt_t& node)
 {
-    for (stmt_p stmt = value->next; stmt; stmt = stmt->next) {
-        stmt->process(this);
+    for (stmt_p stmt = node.next; stmt; stmt = stmt->next) {
+        stmt->process(*this);
         out << std::endl;
     }
 }
 
-void syntax_output_t::process(const exit_stmt_t *value)
+void syntax_output_t::process(const exit_stmt_t& node)
 {
-    *this << to_string(value->type) << " " << value->value;
+    *this << to_string(node.type) << " " << node.value;
 }
 
-void syntax_output_t::process(const expr_stmt_t *value)
+void syntax_output_t::process(const expr_stmt_t& node)
 {
-    *this << value->expr;
+    *this << node.expr;
 }
 
 void syntax_output_t::output_block(stmt_p block)
@@ -136,7 +136,7 @@ void syntax_output_t::output_block(stmt_p block)
     for (stmt_p stmt = block; stmt; stmt = stmt->next) {
         for (int i = 0; i < indent; i++)
             out << "    ";
-        stmt->process(this);
+        stmt->process(*this);
         out << std::endl;
     }
     indent--;
@@ -154,46 +154,46 @@ void syntax_output_t::output_inits(stmt_p inits)
     }
 }
 
-void syntax_output_t::process(const cond_stmt_t *value)
+void syntax_output_t::process(const cond_stmt_t& node)
 {
-    *this << "if (" << value->cond << ") ";
-    output_block(value->stmt_true);
-    if (value->stmt_false) {
+    *this << "if (" << node.cond << ") ";
+    output_block(node.stmt_true);
+    if (node.stmt_false) {
         *this << "else ";
-        output_block(value->stmt_false);
+        output_block(node.stmt_false);
     }
 }
 
-void syntax_output_t::process(const loop_stmt_t *value)
+void syntax_output_t::process(const loop_stmt_t& node)
 {
-    if (value->pre_check) {
-        *this << "while (" << value->cond << ") ";
-        output_block(value->body);
+    if (node.pre_check) {
+        *this << "while (" << node.cond << ") ";
+        output_block(node.body);
     }
     else {
         *this << "do ";
-        output_block(value->body);
-        *this << "while (" << value->cond << ")";
+        output_block(node.body);
+        *this << "while (" << node.cond << ")";
     }
 }
 
-void syntax_output_t::process(const for_loop_stmt_t *value)
+void syntax_output_t::process(const for_loop_stmt_t& node)
 {
-    *this << "for (; " << value->cond << "; ";
-    output_inits(value->incr);
+    *this << "for (; " << node.cond << "; ";
+    output_inits(node.incr);
     *this << ") ";
-    output_block(value->body);
+    output_block(node.body);
 }
 
-void syntax_output_t::process(const load_stmt_t *value)
+void syntax_output_t::process(const load_stmt_t& node)
 {
-    *this << value->lval << " " << value->call;
+    *this << node.lval << " " << node.call;
 }
 
-void syntax_output_t::process(const func_defn_t *value)
+void syntax_output_t::process(const func_defn_t& node)
 {
-    *this << value->name << "()";
-    output_block(value->body);
+    *this << node.name << "() ";
+    output_block(node.body);
 }
 
 

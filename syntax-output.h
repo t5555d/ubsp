@@ -12,22 +12,22 @@ class syntax_output_t : public syntax_processor_i
 public:
     syntax_output_t(std::ostream& o) : out(o) {}
 
-    virtual void process(const const_expr_t *) override;
-    virtual void process(const lval_expr_t *) override;
-    virtual void process(const call_expr_t *) override;
-    virtual void process(const chng_expr_t *) override;
-    virtual void process(const incr_expr_t *) override;
-    virtual void process(const unary_oper_t *) override;
-    virtual void process(const binary_oper_t *) override;
-    virtual void process(const cond_expr_t *) override;
-    virtual void process(const root_stmt_t *) override;
-    virtual void process(const exit_stmt_t *) override;
-    virtual void process(const expr_stmt_t *) override;
-    virtual void process(const cond_stmt_t *) override;
-    virtual void process(const loop_stmt_t *) override;
-    virtual void process(const for_loop_stmt_t *) override;
-    virtual void process(const load_stmt_t *) override;
-    virtual void process(const func_defn_t *) override;
+    virtual void process(const const_expr_t&) override;
+    virtual void process(const lval_expr_t&) override;
+    virtual void process(const call_expr_t&) override;
+    virtual void process(const chng_expr_t&) override;
+    virtual void process(const incr_expr_t&) override;
+    virtual void process(const unary_oper_t&) override;
+    virtual void process(const binary_oper_t&) override;
+    virtual void process(const cond_expr_t&) override;
+    virtual void process(const root_stmt_t&) override;
+    virtual void process(const exit_stmt_t&) override;
+    virtual void process(const expr_stmt_t&) override;
+    virtual void process(const cond_stmt_t&) override;
+    virtual void process(const loop_stmt_t&) override;
+    virtual void process(const for_loop_stmt_t&) override;
+    virtual void process(const load_stmt_t&) override;
+    virtual void process(const func_defn_t&) override;
 
 private:
     std::ostream& out;

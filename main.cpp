@@ -13,7 +13,7 @@ int main(int argc, const char *argv[])
     syntax.load(argv[1]);
 
     syntax_output_t output(std::cout);
-    syntax.process(&output);
+    syntax.process(output);
 
     return 0;
 }
