@@ -1,0 +1,58 @@
+REFS_PER_FRAME = 7
+
+uvlc() { 
+    leadingZeros = 0
+    while( 1 ) {
+        done                f(1)
+        if ( done )
+            break
+        leadingZeros++
+    }
+    if ( leadingZeros >= 32 ) {
+        return ( 1 << 32 ) - 1
+    }
+    value                   f(leadingZeros)
+    return value + ( 1 << leadingZeros ) - 1
+}
+
+obu_header() {
+    obu_forbidden_bit           f(1)
+    obu_type                    f(4)
+    obu_extension_flag          f(1)
+    obu_has_size_field          f(1)
+    obu_reserved_1bit           f(1)
+    if ( obu_extension_flag == 1 )
+        obu_extension_header()
+}
+
+obu_extension_header() {
+    temporal_id = f(3)
+    spatial_id = f(2)
+    extension_header_reserved_3bits     f(3)
+}
+
+byte_alignment( ) {
+    while ( get_position( ) & 7 )
+        zero_bit                        f(1)
+}
+
+reserved_obu( ) {
+}
+
+sequence_header_obu( ) {
+    seq_profile	                            f(3)
+    still_picture	                        f(1)
+    reduced_still_picture_header	        f(1)
+    if ( reduced_still_picture_header ) {	 
+        operating_points_cnt_minus_1        = 0	 
+        operating_point_idc[ 0 ]            = 0	 
+        seq_level_idx[ 0 ]	                f(5)
+        seq_tier[ 0 ]                       = 0	 
+    } else {
+        operating_points_cnt_minus_1        f(5)
+        for ( i = 0; i <= operating_points_cnt_minus_1; i++ ) {
+            operating_point_idc[ i ]        f(12)
+            seq_level_idx[ i ]              f(5)
+        }
+    }
+}
