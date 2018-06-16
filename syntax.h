@@ -30,7 +30,9 @@ struct expression_i : syntax_node_i {
     virtual expr_priority_t get_priority() const = 0;
 };
 
-#define PRIORITY_IMPL(p) virtual expr_priority_t get_priority() const override { return p; }
+#define EXPR_IMPL(prio) \
+    PROCESS_IMPL; \
+    virtual expr_priority_t get_priority() const override { return prio; }
 
 // generic lvalue (i.e. variable)
 struct lvalue_t
@@ -53,15 +55,13 @@ struct func_call_t
 struct const_expr_t : expression_i
 {
     number_t value;
-    PROCESS_IMPL;
-    PRIORITY_IMPL(IDENT_PRIORITY);
+    EXPR_IMPL(IDENT_PRIORITY);
 };
 
 struct lval_expr_t : expression_i
 {
     lvalue_t lval;
-    PROCESS_IMPL;
-    PRIORITY_IMPL(IDENT_PRIORITY);
+    EXPR_IMPL(IDENT_PRIORITY);
 };
 
 struct chng_expr_t : expression_i
@@ -69,8 +69,7 @@ struct chng_expr_t : expression_i
     lvalue_t lval;
     expr_p value;
     binary_oper_type_t type;
-    PROCESS_IMPL;
-    PRIORITY_IMPL(CHNG_PRIORITY);
+    EXPR_IMPL(CHNG_PRIORITY);
 };
 
 struct incr_expr_t : expression_i
@@ -78,24 +77,21 @@ struct incr_expr_t : expression_i
     lvalue_t lval;
     binary_oper_type_t type;
     bool postfix = false;
-    PROCESS_IMPL;
-    PRIORITY_IMPL(postfix ? POSTFIX_PRIORITY : PREFIX_PRIORITY);
+    EXPR_IMPL(postfix ? POSTFIX_PRIORITY : PREFIX_PRIORITY);
 };
 
 struct unary_oper_t : expression_i
 {
     expr_p operand;
     unary_oper_type_t type;
-    PROCESS_IMPL;
-    PRIORITY_IMPL(PREFIX_PRIORITY);
+    EXPR_IMPL(PREFIX_PRIORITY);
 };
 
 struct binary_oper_t : expression_i 
 {
     expr_p left, right;
     binary_oper_type_t type;
-    PROCESS_IMPL;
-    PRIORITY_IMPL(get_operator_info(type).priority);
+    EXPR_IMPL(get_operator_info(type).priority);
 };
 
 struct cond_expr_t : expression_i 
@@ -103,15 +99,13 @@ struct cond_expr_t : expression_i
     expr_p cond;
     expr_p expr_true;
     expr_p expr_false;
-    PROCESS_IMPL;
-    PRIORITY_IMPL(COND_PRIORITY);
+    EXPR_IMPL(COND_PRIORITY);
 };
 
 struct call_expr_t : expression_i
 {
     func_call_t call;
-    PROCESS_IMPL;
-    PRIORITY_IMPL(IDENT_PRIORITY);
+    EXPR_IMPL(IDENT_PRIORITY);
 };
 
 //

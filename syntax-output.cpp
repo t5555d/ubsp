@@ -7,32 +7,45 @@ NAMESPACE_UBSP_BEGIN;
 // helper functions:
 //
 
-std::ostream& operator<<(std::ostream& out, const syntax_node_i *node)
+syntax_output_t& syntax_output_t::operator<<(const lvalue_t& lval)
 {
-    if (node) {
-        syntax_output_t output(out);
-        node->process(&output);
-    }
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out, const lvalue_t& lval)
-{
-    out << lval.name;
+    *this << lval.name;
+    this->priority = NOP_PRIORITY;
     for (expr_p idx = lval.index; idx; idx = idx->next)
-        out << '[' << idx << ']';
-    return out;
+        *this << "[" << idx << "]";
+    return *this;
 }
 
-std::ostream& operator<<(std::ostream& out, const func_call_t& call)
+syntax_output_t& syntax_output_t::operator<<(const func_call_t& call)
 {
-    out << call.name << '(';
+    *this << call.name << "(";
+    this->priority = NOP_PRIORITY;
     if (expr_p arg = call.args) {
-        out << arg;
+        *this << arg;
         while ((arg = arg->next) != nullptr)
-            out << ", " << arg;
+            *this << ", " << arg;
     }
-    return out << ')';
+    return *this << ")";
+}
+
+syntax_output_t& syntax_output_t::operator<<(expr_p expr)
+{
+    if (expr == nullptr) return *this;
+    auto outer_priority = this->priority;
+    auto inner_priority = expr->get_priority();
+    this->priority = inner_priority;
+    if (inner_priority < outer_priority) out << "(";
+    expr->process(this);
+    if (inner_priority < outer_priority) out << ")";
+    this->priority = outer_priority;
+    return *this;
+}
+
+syntax_output_t& syntax_output_t::operator<<(stmt_p stmt)
+{
+    if (stmt) 
+        stmt->process(this);
+    return *this;
 }
 
 const char *to_string(scope_exit_type_t type)
@@ -46,6 +59,7 @@ const char *to_string(scope_exit_type_t type)
     return strings[int(type)];
 }
 
+
                
 //
 // output interface implementation:
@@ -54,45 +68,44 @@ const char *to_string(scope_exit_type_t type)
 // expressions:
 
 void syntax_output_t::process(const const_expr_t *value) { out << value->value; }
-void syntax_output_t::process(const lval_expr_t *value) { out << value->lval; }
-void syntax_output_t::process(const call_expr_t *value) { out << value->call; }
+void syntax_output_t::process(const lval_expr_t *value) { *this << value->lval; }
+void syntax_output_t::process(const call_expr_t *value) { *this << value->call; }
 
 void syntax_output_t::process(const chng_expr_t *value)
 {
-    out << value->lval << ' ' << value->type << "= " << value->value;
+    auto& info = get_operator_info(value->type);
+    *this << value->lval << " " << info.text << "= " << value->value;
 }
 
 void syntax_output_t::process(const incr_expr_t *value)
 {
+    auto& info = get_operator_info(value->type);
     if (value->postfix)
-        out << value->lval << value->type << value->type;
+        *this << value->lval << info.text << info.text;
     else
-        out << value->type << value->type << value->lval;
+        *this << info.text << info.text << value->lval;
 }
 
 void syntax_output_t::process(const unary_oper_t *value)
 {
-    out << value->type << value->operand;
+    auto& info = get_operator_info(value->type);
+    *this << info.text << value->operand;
 }
 
 void syntax_output_t::process(const binary_oper_t *value)
 {
-    if (value->left->get_priority() < value->get_priority())
-        out << '(' << value->left << ')';
-    else
-        out << value->left;
-
-    out << ' ' << value->type << ' ';
-
-    if (value->right->get_priority() < value->get_priority())
-        out << '(' << value->right << ')';
-    else
-        out << value->right;
+    auto& info = get_operator_info(value->type);
+    *this << value->left << " " << info.text << " ";
+    priority++; // left associativity
+    *this << value->right;
 }
 
 void syntax_output_t::process(const cond_expr_t *value)
 {
-    out << value->cond << " ? " << value->expr_true << " : " << value->expr_false;
+    priority++;
+    *this << value->cond << " ? " << value->expr_true;
+    priority--;
+    *this << " : " << value->expr_false;
 }
 
 // statements:
@@ -107,12 +120,12 @@ void syntax_output_t::process(const root_stmt_t *value)
 
 void syntax_output_t::process(const exit_stmt_t *value)
 {
-    out << value->type << ' ' << value->value;
+    *this << to_string(value->type) << " " << value->value;
 }
 
 void syntax_output_t::process(const expr_stmt_t *value)
 {
-    out << value->expr;
+    *this << value->expr;
 }
 
 void syntax_output_t::output_block(stmt_p block)
@@ -135,18 +148,18 @@ void syntax_output_t::output_block(stmt_p block)
 void syntax_output_t::output_inits(stmt_p inits)
 {
     if (stmt_p init = inits) {
-        out << init;
+        *this << init;
         while ((init = init->next) != nullptr)
-            out << ", " << init;
+            *this << ", " << init;
     }
 }
 
 void syntax_output_t::process(const cond_stmt_t *value)
 {
-    out << "if (" << value->cond << ") ";
+    *this << "if (" << value->cond << ") ";
     output_block(value->stmt_true);
     if (value->stmt_false) {
-        out << "else ";
+        *this << "else ";
         output_block(value->stmt_false);
     }
 }
@@ -154,32 +167,32 @@ void syntax_output_t::process(const cond_stmt_t *value)
 void syntax_output_t::process(const loop_stmt_t *value)
 {
     if (value->pre_check) {
-        out << "while (" << value->cond << ") ";
+        *this << "while (" << value->cond << ") ";
         output_block(value->body);
     }
     else {
-        out << "do ";
+        *this << "do ";
         output_block(value->body);
-        out << "while (" << value->cond << ")";
+        *this << "while (" << value->cond << ")";
     }
 }
 
 void syntax_output_t::process(const for_loop_stmt_t *value)
 {
-    out << "for (; " << value->cond << "; ";
+    *this << "for (; " << value->cond << "; ";
     output_inits(value->incr);
-    out << ") ";
+    *this << ") ";
     output_block(value->body);
 }
 
 void syntax_output_t::process(const load_stmt_t *value)
 {
-    out << value->lval << " " << value->call;
+    *this << value->lval << " " << value->call;
 }
 
 void syntax_output_t::process(const func_defn_t *value)
 {
-    out << value->name << "()";
+    *this << value->name << "()";
     output_block(value->body);
 }
 

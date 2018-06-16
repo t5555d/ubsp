@@ -32,24 +32,18 @@ public:
 private:
     std::ostream& out;
     int indent = 0;
+    int priority = NOP_PRIORITY;
+
+    syntax_output_t& operator<<(const char *s) { out << s; return *this; }
+    syntax_output_t& operator<<(const lvalue_t& lval);
+    syntax_output_t& operator<<(const func_call_t& call);
+
+    syntax_output_t& operator<<(expr_p expr);
+    syntax_output_t& operator<<(stmt_p stmt);
 
     void output_block(stmt_p block);
     void output_inits(stmt_p inits);
 };
-
-// helper functions:
-inline const char *to_string(binary_oper_type_t type) { return get_operator_info(type).text; }
-inline const char *to_string(unary_oper_type_t type) { return get_operator_info(type).text; }
-const char *to_string(scope_exit_type_t type);
-
-inline std::ostream& operator<<(std::ostream& out, binary_oper_type_t type) { return out << to_string(type); }
-inline std::ostream& operator<<(std::ostream& out, unary_oper_type_t type) { return out << to_string(type); }
-inline std::ostream& operator<<(std::ostream& out, scope_exit_type_t type) { return out << to_string(type); }
-
-std::ostream& operator<<(std::ostream& out, const syntax_node_i *node);
-std::ostream& operator<<(std::ostream& out, const lvalue_t& lval);
-std::ostream& operator<<(std::ostream& out, const func_call_t& call);
-
 
 NAMESPACE_UBSP_END;
 
