@@ -5,9 +5,12 @@
 
 NAMESPACE_UBSP_BEGIN;
 
+typedef number_t (*calc_fn)(const number_t *stack);
+
 struct operator_info_t {
     const char *text;
     expr_priority_t priority;
+    calc_fn calc;
 };
 
 extern const operator_info_t binary_oper_info[];
