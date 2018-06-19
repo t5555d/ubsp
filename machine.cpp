@@ -138,20 +138,20 @@ void machine_t::process(const root_stmt_t& node)
     exec(node.next);
 }
 
-void machine_t::process(const exit_stmt_t& node)
+void machine_t::process(const break_stmt_t& node)
 {
-    number_t value = eval(node.value);
-    switch (node.type)
-    {
-    case scope_exit_type_t::BREAK: 
-        throw break_exception{};
-    case scope_exit_type_t::CONTINUE:
-        throw continue_exception{};
-    case scope_exit_type_t::RETURN:
-        throw return_exception{ eval(node.value) };
-    default:
-        throw "illegal exit type";
-    }
+    throw break_exception{};
+}
+
+void machine_t::process(const continue_stmt_t& node)
+{
+    throw continue_exception{};
+}
+
+void machine_t::process(const return_stmt_t& node)
+{
+    value = eval(node.value);
+    throw return_exception{};
 }
 
 void machine_t::process(const expr_stmt_t& node)

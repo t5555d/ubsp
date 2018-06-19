@@ -130,11 +130,11 @@ int syntax_loader_t::read_token(YYSTYPE *yylval)
             if (0 == strcmp(buf, "for"))
                 return FOR;
             if (0 == strcmp(buf, "return"))
-                return yylval->et = scope_exit_type_t::RETURN, RETURN;
+                return RETURN;
             if (0 == strcmp(buf, "break"))
-                return yylval->et = scope_exit_type_t::BREAK, BREAK;
+                return BREAK;
             if (0 == strcmp(buf, "continue"))
-                return yylval->et = scope_exit_type_t::CONTINUE, CONTINUE;
+                return CONTINUE;
 
             // save identifier:
             auto i = syntax.idents.emplace(buf);
@@ -251,7 +251,7 @@ CREATE_NODE_FUNC_3(binary_oper, type, left, right);
 CREATE_NODE_FUNC_3(cond_expr, cond, expr_true, expr_false);
 
 CREATE_NODE_FUNC_2(load_stmt, lval, call);
-CREATE_NODE_FUNC_2(exit_stmt, type, value);
+CREATE_NODE_FUNC_1(return_stmt, value);
 CREATE_NODE_FUNC_1(expr_stmt, expr);
 CREATE_NODE_FUNC_3(cond_stmt, cond, stmt_true, stmt_false);
 CREATE_NODE_FUNC_3(loop_stmt, cond, body, pre_check);

@@ -117,10 +117,19 @@ struct root_stmt_t : statement_i
     PROCESS_IMPL;
 };
 
-struct exit_stmt_t : statement_i
+struct break_stmt_t : statement_i
+{
+    PROCESS_IMPL;
+};
+
+struct continue_stmt_t : statement_i
+{
+    PROCESS_IMPL;
+};
+
+struct return_stmt_t : statement_i
 {
     expr_p value;
-    scope_exit_type_t type;
     PROCESS_IMPL;
 };
 

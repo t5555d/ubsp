@@ -30,7 +30,9 @@ struct binary_oper_t;
 struct cond_expr_t;
 struct call_expr_t;
 struct root_stmt_t;
-struct exit_stmt_t;
+struct break_stmt_t;
+struct continue_stmt_t;
+struct return_stmt_t;
 struct expr_stmt_t;
 struct cond_stmt_t;
 struct loop_stmt_t;
@@ -55,7 +57,9 @@ struct syntax_processor_i
     virtual void process(const cond_expr_t&) = 0;
     virtual void process(const call_expr_t&) = 0;
     virtual void process(const root_stmt_t&) = 0;
-    virtual void process(const exit_stmt_t&) = 0;
+    virtual void process(const break_stmt_t&) = 0;
+    virtual void process(const continue_stmt_t&) = 0;
+    virtual void process(const return_stmt_t&) = 0;
     virtual void process(const expr_stmt_t&) = 0;
     virtual void process(const cond_stmt_t&) = 0;
     virtual void process(const loop_stmt_t&) = 0;
@@ -104,18 +108,8 @@ enum class unary_oper_type_t {
     LAST
 };
 
-// scope exit
-enum class scope_exit_type_t {
-    RETURN,
-    BREAK,
-    CONTINUE,
-
-    LAST
-};
-
 constexpr size_t NUM_BINARY_OPER_TYPES = size_t(binary_oper_type_t::LAST);
 constexpr size_t NUM_UNARY_OPER_TYPES = size_t(unary_oper_type_t::LAST);
-constexpr size_t NUM_SCOPE_EXIT_TYPES = size_t(scope_exit_type_t::LAST);
 
 enum expr_priority_t {
     NOP_PRIORITY = 0,

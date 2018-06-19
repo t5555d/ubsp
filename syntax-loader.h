@@ -18,6 +18,9 @@ private:
     FILE *file;
     int ungot_char;
     int line, column;
+    break_stmt_t break_stmt;
+    continue_stmt_t continue_stmt;
+    return_stmt_t return_stmt;
 
     int getc();
     void ungetc(int chr);
@@ -54,7 +57,9 @@ public:
     cond_expr_t     *create_cond_expr(expr_p cond, expr_p expr_true, expr_p expr_false);
 
     load_stmt_t     *create_load_stmt(lvalue_t lval, func_call_t call);
-    exit_stmt_t     *create_exit_stmt(scope_exit_type_t type, expr_p value = nullptr);
+    break_stmt_t    *create_break_stmt() { return alloc_node<break_stmt_t>(); }
+    continue_stmt_t *create_continue_stmt() { return alloc_node<continue_stmt_t>(); }
+    return_stmt_t   *create_return_stmt(expr_p expr = nullptr);
     expr_stmt_t     *create_expr_stmt(expr_p expr);
     cond_stmt_t     *create_cond_stmt(expr_p cond, stmt_p stmt_true, stmt_p stmt_false = nullptr);
     loop_stmt_t     *create_loop_stmt(expr_p cond, stmt_p body, bool pre_check);

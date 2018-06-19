@@ -21,7 +21,9 @@ public:
     virtual void process(const binary_oper_t&) override;
     virtual void process(const cond_expr_t&) override;
     virtual void process(const root_stmt_t&) override;
-    virtual void process(const exit_stmt_t&) override;
+    virtual void process(const break_stmt_t&) override;
+    virtual void process(const continue_stmt_t&) override;
+    virtual void process(const return_stmt_t&) override;
     virtual void process(const expr_stmt_t&) override;
     virtual void process(const cond_stmt_t&) override;
     virtual void process(const loop_stmt_t&) override;

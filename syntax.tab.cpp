@@ -160,7 +160,6 @@ typedef union YYSTYPE
     ubsp::lvalue_t          lval;
     ubsp::binary_oper_type_t  bt;
     ubsp::unary_oper_type_t   ut;
-    ubsp::scope_exit_type_t   et;
     ubsp::syntax_node_i    *node;
     ubsp::statement_i      *stmt;
     ubsp::expression_i     *expr;
@@ -168,7 +167,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 172 "syntax.tab.cpp"
+#line 171 "syntax.tab.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -192,14 +191,14 @@ typedef struct YYLTYPE
 /* Copy the second part of user declarations.  */
 
 /* Line 264 of yacc.c  */
-#line 27 "syntax.y"
+#line 26 "syntax.y"
 
     #include "syntax-loader.h"
     using namespace ubsp;
 
 
 /* Line 264 of yacc.c  */
-#line 203 "syntax.tab.cpp"
+#line 202 "syntax.tab.cpp"
 
 #ifdef short
 # undef short
@@ -514,13 +513,13 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    70,    70,    71,    73,    74,    78,    79,    80,    82,
-      83,    84,    85,    86,    87,    88,    90,    91,    92,    93,
-      94,    95,    96,    97,    98,    99,   100,   101,   104,   109,
-     110,   111,   112,   113,   114,   115,   116,   117,   118,   119,
-     120,   121,   122,   123,   124,   125,   126,   127,   128,   129,
-     130,   131,   132,   133,   134,   138,   138,   139,   139,   141,
-     142,   144,   144,   145,   145,   147,   148
+       0,    69,    69,    70,    72,    73,    77,    78,    79,    81,
+      82,    83,    84,    85,    86,    87,    89,    90,    91,    92,
+      93,    94,    95,    96,    97,    98,    99,   100,   103,   108,
+     109,   110,   111,   112,   113,   114,   115,   116,   117,   118,
+     119,   120,   121,   122,   123,   124,   125,   126,   127,   128,
+     129,   130,   131,   132,   133,   137,   137,   138,   138,   140,
+     141,   143,   143,   144,   144,   146,   147
 };
 #endif
 
@@ -1617,168 +1616,168 @@ yyreduce:
         case 4:
 
 /* Line 1455 of yacc.c  */
-#line 73 "syntax.y"
+#line 72 "syntax.y"
     { runtime->register_stmt((yyvsp[(1) - (1)].stmt)); ;}
     break;
 
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 74 "syntax.y"
+#line 73 "syntax.y"
     { runtime->register_func((yyvsp[(1) - (6)].ident), (yyvsp[(5) - (6)].stmt)); ;}
     break;
 
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 78 "syntax.y"
+#line 77 "syntax.y"
     { (yyval.lval) = { (yyvsp[(1) - (2)].ident), (yyvsp[(2) - (2)].expr) }; ;}
     break;
 
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 79 "syntax.y"
+#line 78 "syntax.y"
     { (yyval.call) = { (yyvsp[(1) - (4)].ident), (yyvsp[(3) - (4)].expr) }; ;}
     break;
 
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 80 "syntax.y"
+#line 79 "syntax.y"
     { (yyval.stmt) = runtime->create_expr_stmt((yyvsp[(1) - (1)].expr)); ;}
     break;
 
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 82 "syntax.y"
+#line 81 "syntax.y"
     { (yyval.expr) = runtime->create_call_expr((yyvsp[(1) - (1)].call)); ;}
     break;
 
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 83 "syntax.y"
+#line 82 "syntax.y"
     { (yyval.expr) = runtime->create_chng_expr((yyvsp[(1) - (3)].lval), (yyvsp[(3) - (3)].expr), (yyvsp[(2) - (3)].bt)); ;}
     break;
 
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 84 "syntax.y"
+#line 83 "syntax.y"
     { (yyval.expr) = runtime->create_chng_expr((yyvsp[(1) - (3)].lval), (yyvsp[(3) - (3)].expr), (yyvsp[(2) - (3)].bt)); ;}
     break;
 
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 85 "syntax.y"
+#line 84 "syntax.y"
     { (yyval.expr) = runtime->create_incr_expr((yyvsp[(1) - (2)].bt), (yyvsp[(2) - (2)].lval)); ;}
     break;
 
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 86 "syntax.y"
+#line 85 "syntax.y"
     { (yyval.expr) = runtime->create_incr_expr((yyvsp[(1) - (2)].bt), (yyvsp[(2) - (2)].lval)); ;}
     break;
 
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 87 "syntax.y"
+#line 86 "syntax.y"
     { (yyval.expr) = runtime->create_incr_expr((yyvsp[(1) - (2)].lval), (yyvsp[(2) - (2)].bt)); ;}
     break;
 
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 88 "syntax.y"
+#line 87 "syntax.y"
     { (yyval.expr) = runtime->create_incr_expr((yyvsp[(1) - (2)].lval), (yyvsp[(2) - (2)].bt)); ;}
     break;
 
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 90 "syntax.y"
+#line 89 "syntax.y"
     { (yyval.stmt) = (yyvsp[(2) - (3)].stmt); ;}
     break;
 
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 91 "syntax.y"
+#line 90 "syntax.y"
     { (yyval.stmt) = (yyvsp[(1) - (1)].stmt); ;}
     break;
 
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 92 "syntax.y"
+#line 91 "syntax.y"
     { (yyval.stmt) = runtime->create_load_stmt((yyvsp[(1) - (2)].lval), (yyvsp[(2) - (2)].call)); ;}
     break;
 
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 93 "syntax.y"
-    { (yyval.stmt) = runtime->create_exit_stmt((yyvsp[(1) - (1)].et)); ;}
+#line 92 "syntax.y"
+    { (yyval.stmt) = runtime->create_return_stmt(); ;}
     break;
 
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 94 "syntax.y"
-    { (yyval.stmt) = runtime->create_exit_stmt((yyvsp[(1) - (2)].et), (yyvsp[(2) - (2)].expr)); ;}
+#line 93 "syntax.y"
+    { (yyval.stmt) = runtime->create_return_stmt((yyvsp[(2) - (2)].expr)); ;}
     break;
 
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 95 "syntax.y"
-    { (yyval.stmt) = runtime->create_exit_stmt((yyvsp[(1) - (1)].et)); ;}
+#line 94 "syntax.y"
+    { (yyval.stmt) = runtime->create_break_stmt(); ;}
     break;
 
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 96 "syntax.y"
-    { (yyval.stmt) = runtime->create_exit_stmt((yyvsp[(1) - (1)].et)); ;}
+#line 95 "syntax.y"
+    { (yyval.stmt) = runtime->create_continue_stmt(); ;}
     break;
 
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 97 "syntax.y"
+#line 96 "syntax.y"
     { (yyval.stmt) = runtime->create_cond_stmt((yyvsp[(3) - (5)].expr), (yyvsp[(5) - (5)].stmt)); ;}
     break;
 
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 98 "syntax.y"
+#line 97 "syntax.y"
     { (yyval.stmt) = runtime->create_cond_stmt((yyvsp[(3) - (7)].expr), (yyvsp[(5) - (7)].stmt), (yyvsp[(7) - (7)].stmt)); ;}
     break;
 
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 99 "syntax.y"
+#line 98 "syntax.y"
     { (yyval.stmt) = runtime->create_loop_stmt((yyvsp[(3) - (5)].expr), (yyvsp[(5) - (5)].stmt), true); ;}
     break;
 
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 100 "syntax.y"
+#line 99 "syntax.y"
     { (yyval.stmt) = runtime->create_loop_stmt((yyvsp[(5) - (6)].expr), (yyvsp[(2) - (6)].stmt), false); ;}
     break;
 
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 101 "syntax.y"
+#line 100 "syntax.y"
     {
         auto loop = runtime->create_for_loop_stmt((yyvsp[(5) - (9)].expr), (yyvsp[(9) - (9)].stmt), (yyvsp[(7) - (9)].stmt));
         (yyval.stmt) = runtime->chain<statement_i>((yyvsp[(3) - (9)].stmt), loop); ;}
@@ -1787,7 +1786,7 @@ yyreduce:
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 104 "syntax.y"
+#line 103 "syntax.y"
     {
         auto loop = runtime->create_for_loop_stmt(nullptr, (yyvsp[(8) - (8)].stmt), (yyvsp[(6) - (8)].stmt));
         (yyval.stmt) = runtime->chain<statement_i>((yyvsp[(3) - (8)].stmt), loop); ;}
@@ -1796,245 +1795,245 @@ yyreduce:
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 109 "syntax.y"
+#line 108 "syntax.y"
     { (yyval.expr) = (yyvsp[(2) - (3)].expr); ;}
     break;
 
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 110 "syntax.y"
+#line 109 "syntax.y"
     { (yyval.expr) = (yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 111 "syntax.y"
+#line 110 "syntax.y"
     { (yyval.expr) = runtime->create_const_expr((yyvsp[(1) - (1)].number)); ;}
     break;
 
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 112 "syntax.y"
+#line 111 "syntax.y"
     { (yyval.expr) = runtime->create_lval_expr((yyvsp[(1) - (1)].lval)); ;}
     break;
 
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 113 "syntax.y"
+#line 112 "syntax.y"
     { (yyval.expr) = runtime->create_cond_expr((yyvsp[(1) - (5)].expr), (yyvsp[(3) - (5)].expr), (yyvsp[(5) - (5)].expr)); ;}
     break;
 
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 114 "syntax.y"
+#line 113 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 115 "syntax.y"
+#line 114 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 36:
 
 /* Line 1455 of yacc.c  */
-#line 116 "syntax.y"
+#line 115 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 117 "syntax.y"
+#line 116 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 118 "syntax.y"
+#line 117 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 119 "syntax.y"
+#line 118 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 120 "syntax.y"
+#line 119 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 121 "syntax.y"
+#line 120 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 122 "syntax.y"
+#line 121 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 123 "syntax.y"
+#line 122 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 124 "syntax.y"
+#line 123 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 125 "syntax.y"
+#line 124 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 46:
 
 /* Line 1455 of yacc.c  */
-#line 126 "syntax.y"
+#line 125 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 127 "syntax.y"
+#line 126 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 128 "syntax.y"
+#line 127 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 49:
 
 /* Line 1455 of yacc.c  */
-#line 129 "syntax.y"
+#line 128 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 130 "syntax.y"
+#line 129 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 51:
 
 /* Line 1455 of yacc.c  */
-#line 131 "syntax.y"
+#line 130 "syntax.y"
     { (yyval.expr) = runtime->create_binary_oper((yyvsp[(2) - (3)].bt), (yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 52:
 
 /* Line 1455 of yacc.c  */
-#line 132 "syntax.y"
+#line 131 "syntax.y"
     { (yyval.expr) = runtime->create_unary_oper(unary_oper_type_t::NEG, (yyvsp[(2) - (2)].expr)); ;}
     break;
 
   case 53:
 
 /* Line 1455 of yacc.c  */
-#line 133 "syntax.y"
+#line 132 "syntax.y"
     { (yyval.expr) = runtime->create_unary_oper((yyvsp[(1) - (2)].ut), (yyvsp[(2) - (2)].expr)); ;}
     break;
 
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 134 "syntax.y"
+#line 133 "syntax.y"
     { (yyval.expr) = runtime->create_unary_oper((yyvsp[(1) - (2)].ut), (yyvsp[(2) - (2)].expr)); ;}
     break;
 
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 138 "syntax.y"
+#line 137 "syntax.y"
     { (yyval.expr) = runtime->chain((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 58:
 
 /* Line 1455 of yacc.c  */
-#line 139 "syntax.y"
+#line 138 "syntax.y"
     { (yyval.expr) = nullptr; ;}
     break;
 
   case 59:
 
 /* Line 1455 of yacc.c  */
-#line 141 "syntax.y"
+#line 140 "syntax.y"
     { (yyval.expr) = nullptr; ;}
     break;
 
   case 60:
 
 /* Line 1455 of yacc.c  */
-#line 142 "syntax.y"
+#line 141 "syntax.y"
     { (yyval.expr) = runtime->chain((yyvsp[(2) - (4)].expr), (yyvsp[(4) - (4)].expr)); ;}
     break;
 
   case 62:
 
 /* Line 1455 of yacc.c  */
-#line 144 "syntax.y"
+#line 143 "syntax.y"
     { (yyval.stmt) = runtime->chain((yyvsp[(1) - (3)].stmt), (yyvsp[(3) - (3)].stmt)); ;}
     break;
 
   case 64:
 
 /* Line 1455 of yacc.c  */
-#line 145 "syntax.y"
+#line 144 "syntax.y"
     { (yyval.stmt) = nullptr; ;}
     break;
 
   case 65:
 
 /* Line 1455 of yacc.c  */
-#line 147 "syntax.y"
+#line 146 "syntax.y"
     { (yyval.stmt) = nullptr; ;}
     break;
 
   case 66:
 
 /* Line 1455 of yacc.c  */
-#line 148 "syntax.y"
+#line 147 "syntax.y"
     { (yyval.stmt) = runtime->chain((yyvsp[(1) - (2)].stmt), (yyvsp[(2) - (2)].stmt)); ;}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 2038 "syntax.tab.cpp"
+#line 2037 "syntax.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

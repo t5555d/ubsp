@@ -47,19 +47,6 @@ syntax_output_t& syntax_output_t::operator<<(stmt_p stmt)
         stmt->process(*this);
     return *this;
 }
-
-const char *to_string(scope_exit_type_t type)
-{
-    static const char *strings[] = {
-        "return",   // RETURN
-        "break",    // BREAK
-        "continue", // CONTINUE
-    };
-    static_assert(sizeof(strings) / sizeof(strings[0]) == NUM_SCOPE_EXIT_TYPES, "All values should be printed");
-    return strings[int(type)];
-}
-
-
                
 //
 // output interface implementation:
@@ -118,15 +105,10 @@ void syntax_output_t::process(const root_stmt_t& node)
     }
 }
 
-void syntax_output_t::process(const exit_stmt_t& node)
-{
-    *this << to_string(node.type) << " " << node.value;
-}
-
-void syntax_output_t::process(const expr_stmt_t& node)
-{
-    *this << node.expr;
-}
+void syntax_output_t::process(const break_stmt_t& node) { *this << "break"; }
+void syntax_output_t::process(const continue_stmt_t& node) { *this << "continue"; }
+void syntax_output_t::process(const return_stmt_t& node) { *this << "return " << node.value; }
+void syntax_output_t::process(const expr_stmt_t& node) { *this << node.expr; }
 
 void syntax_output_t::output_block(stmt_p block)
 {

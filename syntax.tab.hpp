@@ -91,7 +91,6 @@ typedef union YYSTYPE
     ubsp::lvalue_t          lval;
     ubsp::binary_oper_type_t  bt;
     ubsp::unary_oper_type_t   ut;
-    ubsp::scope_exit_type_t   et;
     ubsp::syntax_node_i    *node;
     ubsp::statement_i      *stmt;
     ubsp::expression_i     *expr;
@@ -99,7 +98,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 103 "syntax.tab.hpp"
+#line 102 "syntax.tab.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

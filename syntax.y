@@ -18,7 +18,6 @@
     ubsp::lvalue_t          lval;
     ubsp::binary_oper_type_t  bt;
     ubsp::unary_oper_type_t   ut;
-    ubsp::scope_exit_type_t   et;
     ubsp::syntax_node_i    *node;
     ubsp::statement_i      *stmt;
     ubsp::expression_i     *expr;
@@ -43,7 +42,7 @@
 %token <ident> IDENT 
 %token IF ELSE
 %token DO WHILE FOR
-%token <et> RETURN BREAK CONTINUE
+%token RETURN BREAK CONTINUE
 
 %nonassoc RETURN
 %nonassoc IDENT
@@ -90,10 +89,10 @@ chng: call                      { $$ = runtime->create_call_expr($1); }
 stmt: '{' stmt0N '}'            { $$ = $2; }
 	| init						{ $$ = $1; }
     | lval call                 { $$ = runtime->create_load_stmt($1, $2); }
-    | RETURN                    { $$ = runtime->create_exit_stmt($1); }
-    | RETURN expr               { $$ = runtime->create_exit_stmt($1, $2); }
-    | BREAK                     { $$ = runtime->create_exit_stmt($1); }
-    | CONTINUE                  { $$ = runtime->create_exit_stmt($1); }
+    | RETURN                    { $$ = runtime->create_return_stmt(); }
+    | RETURN expr               { $$ = runtime->create_return_stmt($2); }
+    | BREAK                     { $$ = runtime->create_break_stmt(); }
+    | CONTINUE                  { $$ = runtime->create_continue_stmt(); }
     | IF '(' expr ')' stmt      { $$ = runtime->create_cond_stmt($3, $5); }
     | IF '(' expr ')' stmt ELSE stmt { $$ = runtime->create_cond_stmt($3, $5, $7); }
     | WHILE '(' expr ')' stmt   { $$ = runtime->create_loop_stmt($3, $5, true); }
