@@ -5,7 +5,7 @@
 
 NAMESPACE_UBSP_BEGIN;
 
-typedef number_t (*calc_fn)(const number_t *stack);
+typedef number_t (*calc_fn)(number_t a, number_t b);
 
 struct operator_info_t {
     const char *text;

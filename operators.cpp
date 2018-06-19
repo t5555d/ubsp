@@ -3,10 +3,9 @@
 NAMESPACE_UBSP_BEGIN;
 
 namespace {
-    number_t nop(const number_t *stack) { return stack[1]; }
 
-#define BINARY_OPER_IMPL(name, oper) number_t name(const number_t *stack) { return stack[0] oper stack[1]; }
-#define UNARY_OPER_IMPL(name, oper) number_t name(const number_t *stack) { return oper stack[0]; }
+#define BINARY_OPER_IMPL(name, oper) number_t name(number_t a, number_t b) { return a oper b; }
+#define UNARY_OPER_IMPL(name, oper) number_t name(number_t a, number_t b) { return oper a; }
 
     BINARY_OPER_IMPL(add, +);
     BINARY_OPER_IMPL(sub, -);
@@ -38,7 +37,7 @@ namespace {
 }
 
 const operator_info_t binary_oper_info[] = {
-    { "",   NOP_PRIORITY, nop },
+    { "",   NOP_PRIORITY, nullptr },
 
     { "+",  ADD_PRIORITY, add },
     { "-",  ADD_PRIORITY, sub },
