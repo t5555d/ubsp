@@ -171,7 +171,7 @@ struct func_defn_t : statement_i
 // memory management:
 // fixed size buffer is allocated for all nodes
 
-constexpr size_t MAX_NODE_SIZE = 256; // sizeof(chng_expr_t);
+constexpr size_t MAX_NODE_SIZE = sizeof(chng_expr_t);
 
 union node_buffer_t
 {

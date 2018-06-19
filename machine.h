@@ -3,19 +3,45 @@
 
 #include "ubsp-fwd.h"
 #include <map>
-#include <set>
-#include <string>
 
 NAMESPACE_UBSP_BEGIN;
 
-class machine_t
+typedef std::map<name_t, number_t> var_scope_t;
+
+class machine_t : private syntax_processor_i
 {
 public:
-    number_t calc_unary_oper(unary_oper_type_t, number_t);
-    number_t calc_binary_oper(binary_oper_type_t, number_t, number_t);
 
-    number_t get_value(name_t var) const;
-    void set_value(name_t var, number_t val);
+    machine_t();
+
+    number_t call(const func_call_t& call);
+    number_t eval(expr_p expr, number_t default_value = 0);
+    void exec(stmt_p stmt);
+
+    number_t get(const lvalue_t& lval);
+    void put(const lvalue_t& lval, number_t n);
+
+private:
+    std::map<name_t, const func_defn_t *> funcs;
+    var_scope_t global_scope, *scope;
+    number_t value;
+
+    virtual void process(const const_expr_t&) override;
+    virtual void process(const lval_expr_t&) override;
+    virtual void process(const call_expr_t&) override;
+    virtual void process(const chng_expr_t&) override;
+    virtual void process(const incr_expr_t&) override;
+    virtual void process(const unary_oper_t&) override;
+    virtual void process(const binary_oper_t&) override;
+    virtual void process(const cond_expr_t&) override;
+    virtual void process(const root_stmt_t&) override;
+    virtual void process(const exit_stmt_t&) override;
+    virtual void process(const expr_stmt_t&) override;
+    virtual void process(const cond_stmt_t&) override;
+    virtual void process(const loop_stmt_t&) override;
+    virtual void process(const for_loop_stmt_t&) override;
+    virtual void process(const load_stmt_t&) override;
+    virtual void process(const func_defn_t&) override;
 };
 
 
