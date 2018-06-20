@@ -42,9 +42,11 @@ struct func_defn_t;
 
 struct lvalue_t;
 struct func_call_t;
+struct argument_t;
 
 typedef const statement_i *stmt_p;
 typedef const expression_i *expr_p;
+typedef const argument_t *args_p;
 
 struct syntax_processor_i
 {

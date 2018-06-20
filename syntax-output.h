@@ -39,9 +39,14 @@ private:
     syntax_output_t& operator<<(const char *s) { out << s; return *this; }
     syntax_output_t& operator<<(const lvalue_t& lval);
     syntax_output_t& operator<<(const func_call_t& call);
+    syntax_output_t& operator<<(std::ostream& (*fn)(std::ostream&)) { // support std::endl
+        fn(out);
+        return *this;
+    }
 
     syntax_output_t& operator<<(expr_p expr);
     syntax_output_t& operator<<(stmt_p stmt);
+    syntax_output_t& operator<<(args_p args);
 
     void output_block(stmt_p block);
     void output_inits(stmt_p inits);

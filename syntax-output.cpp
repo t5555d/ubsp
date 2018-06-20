@@ -43,11 +43,21 @@ syntax_output_t& syntax_output_t::operator<<(expr_p expr)
 
 syntax_output_t& syntax_output_t::operator<<(stmt_p stmt)
 {
-    if (stmt) 
+    if (stmt)
         stmt->process(*this);
     return *this;
 }
-               
+
+syntax_output_t& syntax_output_t::operator<<(args_p args)
+{
+    if (args_p arg = args) {
+        *this << arg->name;
+        while ((arg = arg->next) != nullptr)
+            *this << ", " << arg->name;
+    }
+    return *this;
+}
+
 //
 // output interface implementation:
 //
@@ -100,8 +110,12 @@ void syntax_output_t::process(const cond_expr_t& node)
 void syntax_output_t::process(const root_stmt_t& node)
 {
     for (stmt_p stmt = node.next; stmt; stmt = stmt->next) {
-        stmt->process(*this);
-        out << std::endl;
+        if (dynamic_cast<const func_defn_t *>(stmt)) {
+            *this << stmt << std::endl;
+        }
+        else {
+            *this << "global " << stmt << std::endl;
+        }
     }
 }
 
@@ -113,13 +127,12 @@ void syntax_output_t::process(const expr_stmt_t& node) { *this << node.expr; }
 void syntax_output_t::output_block(stmt_p block)
 {
     const char *indent_text = "    ";
-    out << "{" << std::endl;
+    *this << "{" << std::endl;
     indent++;
     for (stmt_p stmt = block; stmt; stmt = stmt->next) {
         for (int i = 0; i < indent; i++)
             out << "    ";
-        stmt->process(*this);
-        out << std::endl;
+        *this << stmt << std::endl;
     }
     indent--;
     for (int i = 0; i < indent; i++)
@@ -174,7 +187,7 @@ void syntax_output_t::process(const load_stmt_t& node)
 
 void syntax_output_t::process(const func_defn_t& node)
 {
-    *this << node.name << "() ";
+    *this << node.name << "(" << node.args << ") ";
     output_block(node.body);
 }
 

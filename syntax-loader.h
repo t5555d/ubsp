@@ -65,8 +65,9 @@ public:
     loop_stmt_t     *create_loop_stmt(expr_p cond, stmt_p body, bool pre_check);
     for_loop_stmt_t *create_for_loop_stmt(expr_p cond, stmt_p incr, stmt_p body);
 
+    argument_t      *create_argument(name_t name);
 
-    void register_func(name_t name, stmt_p body);
+    void register_func(name_t name, args_p args, stmt_p body);
     void register_stmt(stmt_p stmt);
 
     int parse();

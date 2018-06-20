@@ -135,6 +135,8 @@ int syntax_loader_t::read_token(YYSTYPE *yylval)
                 return BREAK;
             if (0 == strcmp(buf, "continue"))
                 return CONTINUE;
+            if (0 == strcmp(buf, "global"))
+                return GLOBAL;
 
             // save identifier:
             auto i = syntax.idents.emplace(buf);
@@ -257,6 +259,8 @@ CREATE_NODE_FUNC_3(cond_stmt, cond, stmt_true, stmt_false);
 CREATE_NODE_FUNC_3(loop_stmt, cond, body, pre_check);
 CREATE_NODE_FUNC_3(for_loop_stmt, cond, body, incr);
 
+CREATE_NODE_FUNC_1(argument, name);
+
 incr_expr_t *syntax_loader_t::create_incr_expr(lvalue_t lval, binary_oper_type_t type)
 {
     auto incr = create_incr_expr(type, lval);
@@ -264,10 +268,11 @@ incr_expr_t *syntax_loader_t::create_incr_expr(lvalue_t lval, binary_oper_type_t
     return incr;
 }
 
-void syntax_loader_t::register_func(name_t name, stmt_p body)
+void syntax_loader_t::register_func(name_t name, args_p args, stmt_p body)
 {
     func_defn_t *func = new func_defn_t();
     func->name = name;
+    func->args = args;
     func->body = body;
     register_stmt(func);
 }

@@ -21,6 +21,7 @@
     ubsp::syntax_node_i    *node;
     ubsp::statement_i      *stmt;
     ubsp::expression_i     *expr;
+	ubsp::argument_t       *args;
 }
 
 %{
@@ -33,7 +34,8 @@
 
 %type <stmt> stmt stmt0N
 %type <stmt> init init1N init0N
-%type <expr> expr args1N args0N 
+%type <args> args args1N args0N
+%type <expr> expr expr1N expr0N 
 %type <expr> chng index0N
 %type <call> call
 %type <lval> lval
@@ -43,6 +45,7 @@
 %token IF ELSE
 %token DO WHILE FOR
 %token RETURN BREAK CONTINUE
+%token GLOBAL
 
 %nonassoc RETURN
 %nonassoc IDENT
@@ -69,13 +72,13 @@
 input: defn 
     | defn input
 
-defn: stmt                          { runtime->register_stmt($1); }
-    | IDENT '(' ')' '{' stmt0N '}'  { runtime->register_func($1, $5); }
+defn: GLOBAL stmt                           { runtime->register_stmt($2); }
+    | IDENT '(' args0N ')' '{' stmt0N '}'   { runtime->register_func($1, $3, $6); }
 
 /* definitions */
 
 lval: IDENT index0N             { $$ = { $1, $2 }; }
-call: IDENT '(' args0N ')'      { $$ = { $1, $3 }; }
+call: IDENT '(' expr0N ')'      { $$ = { $1, $3 }; }
 init: chng                      { $$ = runtime->create_expr_stmt($1); }
 
 chng: call                      { $$ = runtime->create_call_expr($1); }
@@ -134,11 +137,15 @@ expr: '(' expr ')'      { $$ = $2; }
 
 /* various types of lists */
 
-args1N: expr | expr ',' args1N  { $$ = runtime->chain($1, $3); }
-args0N: args1N | /*empty*/      { $$ = nullptr; }
+expr1N: expr | expr ',' expr1N  { $$ = runtime->chain($1, $3); }
+expr0N: expr1N | /*empty*/      { $$ = nullptr; }
 
 index0N: /*empty*/              { $$ = nullptr; }
      | '[' expr ']' index0N     { $$ = runtime->chain($2, $4); }
+
+args: IDENT						{ $$ = runtime->create_argument($1); }
+args1N: args | args ',' args1N  { $$ = runtime->chain($1, $3); }
+args0N: args1N | /*empty*/      { $$ = nullptr; }
 
 init1N: init | init ',' init1N  { $$ = runtime->chain($1, $3); }
 init0N: init1N | /*empty*/      { $$ = nullptr; }

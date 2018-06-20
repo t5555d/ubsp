@@ -60,19 +60,20 @@
      RETURN = 265,
      BREAK = 266,
      CONTINUE = 267,
-     CHANGE = 268,
-     OR = 269,
-     AND = 270,
-     NE = 271,
-     EQ = 272,
-     GE = 273,
-     LE = 274,
-     SHR = 275,
-     SHL = 276,
-     NEG = 277,
-     DEC = 278,
-     INC = 279,
-     POSTFIX = 280
+     GLOBAL = 268,
+     CHANGE = 269,
+     OR = 270,
+     AND = 271,
+     NE = 272,
+     EQ = 273,
+     GE = 274,
+     LE = 275,
+     SHR = 276,
+     SHL = 277,
+     NEG = 278,
+     DEC = 279,
+     INC = 280,
+     POSTFIX = 281
    };
 #endif
 
@@ -94,11 +95,12 @@ typedef union YYSTYPE
     ubsp::syntax_node_i    *node;
     ubsp::statement_i      *stmt;
     ubsp::expression_i     *expr;
+	ubsp::argument_t       *args;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 102 "syntax.tab.hpp"
+#line 104 "syntax.tab.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

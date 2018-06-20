@@ -34,6 +34,12 @@ struct expression_i : syntax_node_i {
     PROCESS_IMPL; \
     virtual expr_priority_t get_priority() const override { return prio; }
 
+struct argument_t
+{
+    mutable args_p next = nullptr; // linked list of arguments
+    name_t name;
+};
+
 // generic lvalue (i.e. variable)
 struct lvalue_t
 {
@@ -173,6 +179,7 @@ struct load_stmt_t : statement_i
 struct func_defn_t : statement_i
 {
     name_t name;
+    args_p args;
     stmt_p body;
     PROCESS_IMPL;
 };
