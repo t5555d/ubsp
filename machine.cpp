@@ -133,11 +133,6 @@ void machine_t::process(const cond_expr_t& node)
 // statements
 //
 
-void machine_t::process(const root_stmt_t& node)
-{
-    exec(node.next);
-}
-
 void machine_t::process(const break_stmt_t& node)
 {
     throw break_exception{};
@@ -199,6 +194,21 @@ void machine_t::process(const for_loop_stmt_t& node)
 void machine_t::process(const load_stmt_t& node)
 {
     put(node.lval, call(node.call));
+}
+
+//
+// declarations
+//
+
+void machine_t::process(const root_node_t& node)
+{
+    for (decl_p decl = node.next; decl; decl = decl->next)
+        decl->process(*this);
+}
+
+void machine_t::process(const stmt_decl_t& node)
+{
+    exec(node.stmt);
 }
 
 void machine_t::process(const func_defn_t& node)

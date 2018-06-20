@@ -259,6 +259,9 @@ CREATE_NODE_FUNC_3(cond_stmt, cond, stmt_true, stmt_false);
 CREATE_NODE_FUNC_3(loop_stmt, cond, body, pre_check);
 CREATE_NODE_FUNC_3(for_loop_stmt, cond, body, incr);
 
+CREATE_NODE_FUNC_1(stmt_decl, stmt);
+CREATE_NODE_FUNC_3(func_defn, name, args, body);
+
 CREATE_NODE_FUNC_1(argument, name);
 
 incr_expr_t *syntax_loader_t::create_incr_expr(lvalue_t lval, binary_oper_type_t type)
@@ -270,17 +273,20 @@ incr_expr_t *syntax_loader_t::create_incr_expr(lvalue_t lval, binary_oper_type_t
 
 void syntax_loader_t::register_func(name_t name, args_p args, stmt_p body)
 {
-    func_defn_t *func = new func_defn_t();
-    func->name = name;
-    func->args = args;
-    func->body = body;
-    register_stmt(func);
+    auto decl = create_func_defn(name, args, body);
+    register_decl(decl);
 }
 
 void syntax_loader_t::register_stmt(stmt_p stmt)
 {
-    chain(syntax.last, stmt);
-    syntax.last = stmt;
+    auto decl = create_stmt_decl(stmt);
+    register_decl(decl);
+}
+
+void syntax_loader_t::register_decl(decl_p decl)
+{
+    chain(syntax.last, decl);
+    syntax.last = decl;
 }
 
 NAMESPACE_UBSP_END;

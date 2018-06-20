@@ -107,18 +107,6 @@ void syntax_output_t::process(const cond_expr_t& node)
 
 // statements:
 
-void syntax_output_t::process(const root_stmt_t& node)
-{
-    for (stmt_p stmt = node.next; stmt; stmt = stmt->next) {
-        if (dynamic_cast<const func_defn_t *>(stmt)) {
-            *this << stmt << std::endl;
-        }
-        else {
-            *this << "global " << stmt << std::endl;
-        }
-    }
-}
-
 void syntax_output_t::process(const break_stmt_t& node) { *this << "break"; }
 void syntax_output_t::process(const continue_stmt_t& node) { *this << "continue"; }
 void syntax_output_t::process(const return_stmt_t& node) { *this << "return " << node.value; }
@@ -185,11 +173,28 @@ void syntax_output_t::process(const load_stmt_t& node)
     *this << node.lval << " " << node.call;
 }
 
+// declarations
+
+void syntax_output_t::process(const root_node_t& node)
+{
+    for (decl_p decl = node.next; decl; decl = decl->next) {
+        decl->process(*this);
+        *this << "\n" << std::endl;
+    }
+}
+
+void syntax_output_t::process(const stmt_decl_t& node)
+{
+    *this << "global ";
+    output_block(node.stmt);
+}
+
 void syntax_output_t::process(const func_defn_t& node)
 {
     *this << node.name << "(" << node.args << ") ";
     output_block(node.body);
 }
+
 
 
 NAMESPACE_UBSP_END;

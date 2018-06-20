@@ -19,6 +19,11 @@ struct syntax_node_i
 
 #define PROCESS_IMPL virtual void process(syntax_processor_i& p) const override { p.process(*this); }
 
+// abstract declaration node:
+struct declaration_i : syntax_node_i {
+    mutable decl_p next = nullptr; // linked list of definitions
+};
+
 // abstract statement
 struct statement_i : syntax_node_i {
     mutable stmt_p next = nullptr; // linked list of statements
@@ -118,11 +123,6 @@ struct call_expr_t : expression_i
 // statements:
 //
 
-struct root_stmt_t : statement_i
-{
-    PROCESS_IMPL;
-};
-
 struct break_stmt_t : statement_i
 {
     PROCESS_IMPL;
@@ -176,7 +176,22 @@ struct load_stmt_t : statement_i
     PROCESS_IMPL;
 };
 
-struct func_defn_t : statement_i
+//
+// declarations
+//
+
+struct root_node_t : declaration_i
+{
+    PROCESS_IMPL;
+};
+
+struct stmt_decl_t : declaration_i
+{
+    stmt_p stmt;
+    PROCESS_IMPL;
+};
+
+struct func_defn_t : declaration_i
 {
     name_t name;
     args_p args;
@@ -204,8 +219,8 @@ class syntax_t
 private:
     friend class syntax_loader_t;
     std::set<std::string> idents;
-    root_stmt_t root;
-    stmt_p last;
+    root_node_t root;
+    decl_p last;
 
     std::list<node_buffer_t> pool;
     node_buffer_t *first_free;
@@ -219,7 +234,7 @@ public:
         root.process(processor);
     }
 
-    stmt_p get_tree_root() const { return &root; }
+    decl_p get_tree_root() const { return &root; }
 
 
 

@@ -34,7 +34,6 @@ private:
     virtual void process(const unary_oper_t&) override;
     virtual void process(const binary_oper_t&) override;
     virtual void process(const cond_expr_t&) override;
-    virtual void process(const root_stmt_t&) override;
     virtual void process(const break_stmt_t&) override;
     virtual void process(const continue_stmt_t&) override;
     virtual void process(const return_stmt_t&) override;
@@ -43,6 +42,8 @@ private:
     virtual void process(const loop_stmt_t&) override;
     virtual void process(const for_loop_stmt_t&) override;
     virtual void process(const load_stmt_t&) override;
+    virtual void process(const root_node_t&) override;
+    virtual void process(const stmt_decl_t&) override;
     virtual void process(const func_defn_t&) override;
 };
 
