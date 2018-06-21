@@ -1,6 +1,7 @@
 #include "machine.h"
 #include "syntax.h"
 #include "operators.h"
+#include "utils.h"
 #include <iostream>
 
 NAMESPACE_UBSP_BEGIN;
@@ -58,9 +59,13 @@ number_t machine_t::call(const func_call_t& call)
             throw "Wrong number of arguments";
         }
 
+        on_exit_scope([this, prev_scope] { 
+            scope = prev_scope;
+        });
+        
         scope = &local_scope;
         exec(func->body);
-        value = 0;
+        value = 0; // default return value
     }
     catch (const std::out_of_range& ex) {
         std::cerr << "No such func: " << call.name << std::endl;
@@ -76,7 +81,6 @@ number_t machine_t::call(const func_call_t& call)
         // pass
     }
 
-    scope = prev_scope;
     return value;
 }
 

@@ -152,6 +152,7 @@
     <ClInclude Include="syntax-loader.h" />
     <ClInclude Include="syntax.h" />
     <ClInclude Include="ubsp-fwd.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="machine.cpp" />
