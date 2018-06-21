@@ -49,8 +49,16 @@ number_t machine_t::call(const func_call_t& call)
     try {
         auto func = funcs.at(call.name);
         var_scope_t local_scope;
-        scope = &local_scope;
+        args_p arg = func->args;
+        expr_p val = call.args;
+        for (; arg && val; arg = arg->next, val = val->next) {
+            local_scope[arg->name] = eval(val);
+        }
+        if (arg || val) {
+            throw "Wrong number of arguments";
+        }
 
+        scope = &local_scope;
         exec(func->body);
         value = 0;
     }
