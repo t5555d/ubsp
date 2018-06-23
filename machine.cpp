@@ -46,36 +46,48 @@ void machine_t::exec(stmt_p stmt)
 
 number_t machine_t::call(const func_call_t& call)
 {
-    var_scope_t *prev_scope = scope;
-    try {
-        auto func = funcs.at(call.name);
-        var_scope_t local_scope;
-        args_p arg = func->args;
-        expr_p val = call.args;
-        for (; arg && val; arg = arg->next, val = val->next) {
-            local_scope[arg->name] = eval(val);
-        }
-        if (arg || val) {
-            throw "Wrong number of arguments";
-        }
+    number_t args[30];
+    int args_num = 0;
 
-        on_exit_scope([this, prev_scope] { 
+    for (expr_p arg = call.args; arg; arg = arg->next)
+        args[args_num++] = eval(arg);
+
+    // find function:
+    auto user_defined_func = funcs.find(call.name);
+    if (user_defined_func != funcs.end()) {
+        return this->call(*user_defined_func->second, args_num, args);
+    }
+    
+    // TODO support native functions
+    throw func_not_defined{ call.name };
+}
+
+number_t machine_t::call(const func_defn_t& func, int args_num, number_t args[])
+{
+    // fill local scope:
+    var_scope_t local_scope;
+    int idx = 0;
+    args_p arg = func.args;
+    for (; idx < args_num && arg; idx++, arg = arg->next)
+        local_scope[arg->name] = args[idx];
+    if (arg || idx < args_num)
+        throw "Wrong number of arguments";
+
+    try {
+        var_scope_t *prev_scope = scope;
+        on_exit_scope([this, prev_scope] {
             scope = prev_scope;
         });
         
         scope = &local_scope;
-        exec(func->body);
+        exec(func.body);
         value = 0; // default return value
     }
-    catch (const std::out_of_range& ex) {
-        std::cerr << "No such func: " << call.name << std::endl;
-        throw ex;
-    }
     catch (break_exception) {
-        std::cerr << "Uncaught break at func: " << call.name << std::endl;
+        std::cerr << "Uncaught break at func: " << func.name << std::endl;
     }
     catch (continue_exception) {
-        std::cerr << "Uncaught continue at func: " << call.name << std::endl;
+        std::cerr << "Uncaught continue at func: " << func.name << std::endl;
     }
     catch (return_exception) {
         // pass

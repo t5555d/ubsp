@@ -26,6 +26,8 @@ private:
     var_scope_t global_scope, *scope;
     number_t value;
 
+    number_t call(const func_defn_t& func, int args_num, number_t args[]);
+
     virtual void process(const const_expr_t&) override;
     virtual void process(const lval_expr_t&) override;
     virtual void process(const call_expr_t&) override;
@@ -47,6 +49,15 @@ private:
     virtual void process(const func_defn_t&) override;
 };
 
+struct func_not_defined {
+    name_t func;
+};
+
+struct wrong_args_num {
+    name_t func;
+    int required_args;
+    int provided_args;
+};
 
 NAMESPACE_UBSP_END;
 
