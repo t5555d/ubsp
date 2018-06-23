@@ -46,6 +46,7 @@ void machine_t::exec(stmt_p stmt)
 
 number_t machine_t::call(const func_call_t& call)
 {
+    // evaluate arguments:
     number_t args[30];
     int args_num = 0;
 
@@ -64,14 +65,20 @@ number_t machine_t::call(const func_call_t& call)
 
 number_t machine_t::call(const func_defn_t& func, int args_num, number_t args[])
 {
+    // check args:
+    int required_args_num = 0;
+    for (args_p arg = func.args; arg; arg = arg->next)
+        required_args_num++;
+    if (args_num != required_args_num) {
+        std::cerr << "Wrong number of arguments at func '" << func.name << "': " 
+            << required_args_num << " required, " << args_num << " provided" << std::endl;
+        throw "Wrong number of arguments";
+    }
+
     // fill local scope:
     var_scope_t local_scope;
-    int idx = 0;
-    args_p arg = func.args;
-    for (; idx < args_num && arg; idx++, arg = arg->next)
-        local_scope[arg->name] = args[idx];
-    if (arg || idx < args_num)
-        throw "Wrong number of arguments";
+    for (args_p arg = func.args; arg; arg = arg->next)
+        local_scope[arg->name] = *args++;
 
     try {
         var_scope_t *prev_scope = scope;
@@ -89,8 +96,8 @@ number_t machine_t::call(const func_defn_t& func, int args_num, number_t args[])
     catch (continue_exception) {
         std::cerr << "Uncaught continue at func: " << func.name << std::endl;
     }
-    catch (return_exception) {
-        // pass
+    catch (return_exception r) {
+        value = r.value;
     }
 
     return value;
@@ -169,8 +176,7 @@ void machine_t::process(const continue_stmt_t& node)
 
 void machine_t::process(const return_stmt_t& node)
 {
-    value = eval(node.value);
-    throw return_exception{};
+    throw return_exception{ eval(node.value) };
 }
 
 void machine_t::process(const expr_stmt_t& node)
