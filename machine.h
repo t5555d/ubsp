@@ -2,11 +2,18 @@
 #define _UBSP_MACHINE_
 
 #include "ubsp-fwd.h"
+#include "array.h"
 #include <map>
 
 NAMESPACE_UBSP_BEGIN;
 
-typedef std::map<name_t, number_t> var_scope_t;
+typedef std::map<name_t, array_t> var_scope_t;
+
+constexpr int MAX_ARGS = 30;
+
+struct undefined_var_error {
+    name_t name;
+};
 
 class machine_t : private syntax_processor_i
 {
@@ -22,6 +29,8 @@ public:
     void put(const lvalue_t& lval, number_t n);
 
 private:
+    int eval_args(number_t dest[MAX_ARGS], expr_p expr);
+
     std::map<name_t, const func_defn_t *> funcs;
     var_scope_t global_scope, *scope;
     number_t value;

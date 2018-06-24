@@ -19,16 +19,41 @@ machine_t::machine_t()
 // interface functions
 //
 
+int machine_t::eval_args(number_t dest[MAX_ARGS], expr_p expr)
+{
+    int num = 0;
+    for (expr_p arg = expr; arg; arg = arg->next)
+        dest[num++] = eval(arg);
+    return num;
+}
+
 number_t machine_t::get(const lvalue_t& lval)
 {
-    // TODO support indexing
-    return (*scope)[lval.name];
+    auto var = scope->find(lval.name);
+    if (var == scope->end()) {
+        var = global_scope.find(lval.name);
+        if (var == global_scope.end())
+            throw undefined_var_error{ lval.name };
+    }
+
+    number_t index[MAX_ARGS];
+    int ndims = eval_args(index, lval.index);
+
+    return var->second.get(ndims, index);
 }
 
 void machine_t::put(const lvalue_t& lval, number_t n)
 {
-    // TODO support indexing
-    (*scope)[lval.name] = n;
+    number_t index[MAX_ARGS];
+    int ndims = eval_args(index, lval.index);
+
+    auto var = scope->find(lval.name);
+    if (var == scope->end()) {
+        scope->emplace(lval.name, array_t(ndims, index, n));
+    }
+    else {
+        var->second.put(ndims, index, n);
+    }
 }
 
 number_t machine_t::eval(expr_p expr, number_t default_value)
@@ -47,11 +72,8 @@ void machine_t::exec(stmt_p stmt)
 number_t machine_t::call(const func_call_t& call)
 {
     // evaluate arguments:
-    number_t args[30];
-    int args_num = 0;
-
-    for (expr_p arg = call.args; arg; arg = arg->next)
-        args[args_num++] = eval(arg);
+    number_t args[MAX_ARGS];
+    int args_num = eval_args(args, call.args);
 
     // find function:
     auto user_defined_func = funcs.find(call.name);
@@ -78,7 +100,7 @@ number_t machine_t::call(const func_defn_t& func, int args_num, number_t args[])
     // fill local scope:
     var_scope_t local_scope;
     for (args_p arg = func.args; arg; arg = arg->next)
-        local_scope[arg->name] = *args++;
+        local_scope.emplace(arg->name, *args++);
 
     try {
         var_scope_t *prev_scope = scope;

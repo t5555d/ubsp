@@ -153,8 +153,10 @@
     <ClInclude Include="syntax.h" />
     <ClInclude Include="ubsp-fwd.h" />
     <ClInclude Include="utils.h" />
+    <ClInclude Include="array.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="array.cpp" />
     <ClCompile Include="machine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="operators.cpp" />
