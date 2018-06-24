@@ -7,10 +7,6 @@
 
 NAMESPACE_UBSP_BEGIN;
 
-typedef std::map<name_t, array_t> var_scope_t;
-
-constexpr int MAX_ARGS = 30;
-
 struct undefined_var_error {
     name_t name;
 };
@@ -29,6 +25,10 @@ public:
     void put(const lvalue_t& lval, number_t n);
 
 private:
+    static constexpr int MAX_ARGS = 30;
+
+    typedef std::map<name_t, array_t> var_scope_t;
+
     int eval_args(number_t dest[MAX_ARGS], expr_p expr);
 
     std::map<name_t, const func_defn_t *> funcs;

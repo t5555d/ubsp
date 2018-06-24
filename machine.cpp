@@ -19,7 +19,7 @@ machine_t::machine_t()
 // interface functions
 //
 
-int machine_t::eval_args(number_t dest[MAX_ARGS], expr_p expr)
+int machine_t::eval_args(number_t dest[machine_t::MAX_ARGS], expr_p expr)
 {
     int num = 0;
     for (expr_p arg = expr; arg; arg = arg->next)
