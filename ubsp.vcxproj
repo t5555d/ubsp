@@ -147,6 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="machine.h" />
+    <ClInclude Include="native.h" />
     <ClInclude Include="operators.h" />
     <ClInclude Include="syntax-output.h" />
     <ClInclude Include="syntax-loader.h" />

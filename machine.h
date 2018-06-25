@@ -3,13 +3,11 @@
 
 #include "ubsp-fwd.h"
 #include "array.h"
+#include "native.h"
 #include <map>
+#include <string>
 
 NAMESPACE_UBSP_BEGIN;
-
-struct undefined_var_error {
-    name_t name;
-};
 
 class machine_t : private syntax_processor_i
 {
@@ -24,18 +22,36 @@ public:
     number_t get(const lvalue_t& lval);
     void put(const lvalue_t& lval, number_t n);
 
-private:
-    static constexpr int MAX_ARGS = 30;
+    template<typename T>
+    void export_native_object(const char *name, T *context, export_record_t<T> *exports) {
+        native_objects.emplace(name, native_object_t{ context, exports });
+    }
 
+private:
     typedef std::map<name_t, array_t> var_scope_t;
 
-    int eval_args(number_t dest[MAX_ARGS], expr_p expr);
+    int eval_args(number_t argv[MAX_ARGS], expr_p expr);
+
+    struct native_object_t
+    {
+        void *context;
+        export_record_t<void> *exports;
+    };
+
+    struct native_method_t
+    {
+        void *context;
+        native_func_t<void> func;
+    };
+
+    std::map<std::string, native_object_t> native_objects;
+    std::map<name_t, native_method_t> native_methods;
 
     std::map<name_t, const func_defn_t *> funcs;
     var_scope_t global_scope, *scope;
     number_t value;
 
-    number_t call(const func_defn_t& func, int args_num, number_t args[]);
+    number_t call(const func_defn_t& func, int argc, number_t argv[MAX_ARGS]);
 
     virtual void process(const const_expr_t&) override;
     virtual void process(const lval_expr_t&) override;
@@ -56,16 +72,24 @@ private:
     virtual void process(const root_node_t&) override;
     virtual void process(const stmt_decl_t&) override;
     virtual void process(const func_defn_t&) override;
+    virtual void process(const func_decl_t&) override;
 };
 
-struct func_not_defined {
-    name_t func;
+struct undef_var_error {
+    name_t name;
 };
 
-struct wrong_args_num {
-    name_t func;
-    int required_args;
-    int provided_args;
+struct undef_func_error {
+    name_t name;
+};
+
+struct undef_object_error {
+    name_t name;
+};
+
+struct undef_method_error {
+    name_t object;
+    name_t method;
 };
 
 NAMESPACE_UBSP_END;

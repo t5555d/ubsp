@@ -45,7 +45,7 @@
 %token IF ELSE
 %token DO WHILE FOR
 %token RETURN BREAK CONTINUE
-%token GLOBAL
+%token GLOBAL EXTERN
 
 %nonassoc RETURN
 %nonassoc IDENT
@@ -72,8 +72,9 @@
 input: defn 
     | defn input
 
-defn: GLOBAL stmt                           { runtime->register_stmt($2); }
-    | IDENT '(' args0N ')' '{' stmt0N '}'   { runtime->register_func($1, $3, $6); }
+defn: GLOBAL stmt                               { runtime->register_stmt($2); }
+    | IDENT '(' args0N ')' '{' stmt0N '}'       { runtime->register_func($1, $3, $6); }
+	| EXTERN IDENT '(' ')' '=' IDENT '.' IDENT  { runtime->register_func($2, $6, $8); }
 
 /* definitions */
 

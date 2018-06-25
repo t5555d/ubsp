@@ -31,6 +31,7 @@ public:
     virtual void process(const root_node_t&) override;
     virtual void process(const stmt_decl_t&) override;
     virtual void process(const func_defn_t&) override;
+    virtual void process(const func_decl_t&) override;
 
 private:
     std::ostream& out;

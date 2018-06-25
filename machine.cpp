@@ -19,12 +19,12 @@ machine_t::machine_t()
 // interface functions
 //
 
-int machine_t::eval_args(number_t dest[machine_t::MAX_ARGS], expr_p expr)
+int machine_t::eval_args(number_t argv[MAX_ARGS], expr_p expr)
 {
-    int num = 0;
+    int argc = 0;
     for (expr_p arg = expr; arg; arg = arg->next)
-        dest[num++] = eval(arg);
-    return num;
+        argv[argc++] = eval(arg);
+    return argc;
 }
 
 number_t machine_t::get(const lvalue_t& lval)
@@ -33,7 +33,7 @@ number_t machine_t::get(const lvalue_t& lval)
     if (var == scope->end()) {
         var = global_scope.find(lval.name);
         if (var == global_scope.end())
-            throw undefined_var_error{ lval.name };
+            throw undef_var_error{ lval.name };
     }
 
     number_t index[MAX_ARGS];
@@ -72,35 +72,40 @@ void machine_t::exec(stmt_p stmt)
 number_t machine_t::call(const func_call_t& call)
 {
     // evaluate arguments:
-    number_t args[MAX_ARGS];
-    int args_num = eval_args(args, call.args);
+    number_t argv[MAX_ARGS];
+    int argc = eval_args(argv, call.args);
 
     // find function:
     auto user_defined_func = funcs.find(call.name);
     if (user_defined_func != funcs.end()) {
-        return this->call(*user_defined_func->second, args_num, args);
+        return this->call(*user_defined_func->second, argc, argv);
     }
     
+    auto native_method = native_methods.find(call.name);
+    if (native_method != native_methods.end()) {
+        return native_method->second.func(native_method->second.context, argc, argv);
+    }
+
     // TODO support native functions
-    throw func_not_defined{ call.name };
+    throw undef_func_error{ call.name };
 }
 
-number_t machine_t::call(const func_defn_t& func, int args_num, number_t args[])
+number_t machine_t::call(const func_defn_t& func, int argc, number_t argv[MAX_ARGS])
 {
     // check args:
-    int required_args_num = 0;
+    int required_argc = 0;
     for (args_p arg = func.args; arg; arg = arg->next)
-        required_args_num++;
-    if (args_num != required_args_num) {
+        required_argc++;
+    if (argc != required_argc) {
         std::cerr << "Wrong number of arguments at func '" << func.name << "': " 
-            << required_args_num << " required, " << args_num << " provided" << std::endl;
-        throw "Wrong number of arguments";
+            << required_argc << " required, " << argc << " provided" << std::endl;
+        throw wrong_argc_error{ func.name, required_argc, argc };
     }
 
     // fill local scope:
     var_scope_t local_scope;
     for (args_p arg = func.args; arg; arg = arg->next)
-        local_scope.emplace(arg->name, *args++);
+        local_scope.emplace(arg->name, *argv++);
 
     try {
         var_scope_t *prev_scope = scope;
@@ -266,6 +271,31 @@ void machine_t::process(const stmt_decl_t& node)
 void machine_t::process(const func_defn_t& node)
 {
     funcs[node.name] = &node;
+}
+
+void machine_t::process(const func_decl_t& node)
+{
+    // find corresponding object:
+    auto obj = native_objects.find(node.object);
+    if (obj == native_objects.end())
+        throw undef_object_error{ node.object };
+
+    // find corresponding function:
+    auto context = obj->second.context;
+    auto exports = obj->second.exports;
+    native_func_t<void> func = nullptr;
+    
+    for (auto rec = exports; rec->name; rec++) {
+        if (0 == strcmp(rec->name, node.method)) {
+            func = rec->func;
+            break;
+        }
+    }
+
+    if (func == nullptr)
+        throw undef_method_error{ node.object, node.method };
+
+    native_methods.emplace(node.name, native_method_t{ context, func });
 }
 
 NAMESPACE_UBSP_END;

@@ -195,6 +195,10 @@ void syntax_output_t::process(const func_defn_t& node)
     output_block(node.body);
 }
 
+void syntax_output_t::process(const func_decl_t& node)
+{
+    *this << "extern " << node.name << "() = " << node.object << "." << node.method;
+}
 
 
 NAMESPACE_UBSP_END;
