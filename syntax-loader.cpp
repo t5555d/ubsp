@@ -78,6 +78,63 @@ int syntax_loader_t::check_change(int token)
     return token;
 }
 
+number_t syntax_loader_t::read_number()
+{
+    char buf[MAX_IDENT_LEN];
+    int i = 0, radix = 10, c = getc();
+    if (c != '0') {
+        do {
+            buf[i++] = c;
+            c = getc();
+        } while (c >= '0' && c <= '9');
+    }
+    else {
+        c = getc();
+        if (c == 'x' || c == 'X') {
+            radix = 16;
+            c = getc();
+            do {
+                buf[i++] = c;
+                c = getc();
+            } while (c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f');
+        }
+        else if (c == 'b' || c == 'B') {
+            radix = 2;
+            c = getc();
+            do {
+                buf[i++] = c;
+                c = getc();
+            } while (c >= '0' && c <= '1');
+        }
+        else {
+            while (c >= '0' && c <= '9') {
+                buf[i++] = c;
+                c = getc();
+            }
+        }
+    }
+
+    ungetc(c);
+    buf[i] = 0;
+    return strtoll(buf, nullptr, radix);
+}
+
+void syntax_loader_t::skip_single_line_comment()
+{
+    for (int c = getc(); c != EOF; c = getc()) {
+        if (c == '\n')
+            break;
+    }
+}
+
+void syntax_loader_t::skip_multi_line_comment()
+{
+    for (int c = getc(), n = getc(); c != EOF; c = n, n = getc()) {
+        if (c == '*' && n == '/')
+            break;
+    }
+}
+
 constexpr int pair(int first, int second) {
     return first | (second << 8);
 }
@@ -100,13 +157,8 @@ int syntax_loader_t::read_token(YYSTYPE *yylval)
             continue;
 
         if (isdigit(value)) {
-            do {
-                buf[bi++] = value;
-                value = getc();
-            } while (isdigit(value));
             ungetc(value);
-            buf[bi] = 0;
-            yylval->number = atoi(buf);
+            yylval->number = read_number();
             return NUMBER;
         }
 
@@ -189,6 +241,8 @@ int syntax_loader_t::read_token(YYSTYPE *yylval)
             case pair("!="): yylval->bt = binary_oper_type_t::NE; return NE;
             case pair("<="): yylval->bt = binary_oper_type_t::LE; return LE;
             case pair(">="): yylval->bt = binary_oper_type_t::GE; return GE;
+            case pair("//"): skip_single_line_comment(); continue;
+            case pair("/*"): skip_multi_line_comment(); continue;
             }
             ungetc(next);
 

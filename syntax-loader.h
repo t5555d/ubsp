@@ -29,6 +29,9 @@ private:
     void update_position(int& line, int& column);
 
     int read_token(YYSTYPE *);
+    number_t read_number();
+    void skip_single_line_comment();
+    void skip_multi_line_comment();
 
     friend int yylex(YYSTYPE *yylval, YYLTYPE *yylloc, syntax_loader_t *runtime);
     friend void yyerror(const YYLTYPE *yylloc, syntax_loader_t *runtime, const char *msg);
