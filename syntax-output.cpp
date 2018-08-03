@@ -142,7 +142,7 @@ void syntax_output_t::process(const cond_stmt_t& node)
     *this << "if (" << node.cond << ") ";
     output_block(node.stmt_true);
     if (node.stmt_false) {
-        *this << "else ";
+        *this << " else ";
         output_block(node.stmt_false);
     }
 }
