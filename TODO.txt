@@ -1,0 +1,3 @@
+TODO
+- support enums and/or tables
+- embed init in for loop nodes

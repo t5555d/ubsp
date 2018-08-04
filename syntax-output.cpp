@@ -142,8 +142,12 @@ void syntax_output_t::process(const cond_stmt_t& node)
     *this << "if (" << node.cond << ") ";
     output_block(node.stmt_true);
     if (node.stmt_false) {
+        stmt_p stmt = node.stmt_false;
         *this << " else ";
-        output_block(node.stmt_false);
+        if (stmt->next == nullptr && dynamic_cast<const cond_stmt_t *>(stmt))
+            stmt->process(*this);
+        else 
+            output_block(node.stmt_false);
     }
 }
 
