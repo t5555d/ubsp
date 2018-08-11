@@ -21,22 +21,35 @@ struct array_not_init_error {
     int dim;
 };
 
-constexpr size_t MIN_ARRAY_SIZE = 14;
+constexpr size_t MIN_ARRAY_SIZE = 8;
 
 class array_t
 {
 public:
     array_t(number_t v) : ndims(0), value{v} {}
 
-    array_t(int n, number_t index[], number_t value):
+    array_t(int n, number_t i[], number_t v):
         ndims(n)
     {
-        put(ndims, index, value);
+        value.dim = nullptr;
+        put(ndims, i, v);
+    }
+
+    array_t(array_t&& that) :
+        ndims(that.ndims), value(that.value)
+    {
+        that.value.dim = nullptr;
+    }
+
+    void operator=(array_t&& that) {
+        if (this == &that) return;
+        cleanup(0, value.dim);
+        value = that.value;
+        that.value.dim = nullptr;
     }
 
     ~array_t() {
-        if (0 < ndims)
-            cleanup(0, value.dim);
+        cleanup(0, value.dim);
     }
 
     number_t get(int ndims, number_t index[]);

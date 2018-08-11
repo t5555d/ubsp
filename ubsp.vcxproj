@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="bitstream.h" />
     <ClInclude Include="machine.h" />
     <ClInclude Include="native.h" />
     <ClInclude Include="operators.h" />

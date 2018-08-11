@@ -8,6 +8,7 @@
 
 NAMESPACE_UBSP_BEGIN;
 
+typedef uint8_t byte_t;
 typedef int64_t number_t;
 typedef const char *name_t;
 

@@ -4,11 +4,15 @@
 #include "utils.h"
 #include <iostream>
 
+#include "syntax-output.h"
+
 NAMESPACE_UBSP_BEGIN;
 
 struct break_exception {};
 struct continue_exception {};
 struct return_exception { number_t value; };
+
+syntax_output_t debug(std::cerr);
 
 machine_t::machine_t()
 {
@@ -32,8 +36,14 @@ number_t machine_t::get(const lvalue_t& lval)
     auto var = scope->find(lval.name);
     if (var == scope->end()) {
         var = global_scope.find(lval.name);
-        if (var == global_scope.end())
-            throw undef_var_error{ lval.name };
+        if (var == global_scope.end()) {
+            var = memory_scope.find(lval.name);
+            if (var == memory_scope.end())
+                throw undef_var_error{ lval.name };
+            auto inserted = global_scope.emplace(lval.name, std::move(var->second));
+            memory_scope.erase(var);
+            var = inserted.first;
+        }
     }
 
     number_t index[MAX_ARGS];
@@ -44,6 +54,8 @@ number_t machine_t::get(const lvalue_t& lval)
 
 void machine_t::put(const lvalue_t& lval, number_t n)
 {
+    debug << "    " << lval << " = " << n << std::endl;
+
     number_t index[MAX_ARGS];
     int ndims = eval_args(index, lval.index);
 
@@ -65,8 +77,21 @@ number_t machine_t::eval(expr_p expr, number_t default_value)
 
 void machine_t::exec(stmt_p stmt)
 {
-    for ( ; stmt; stmt = stmt->next)
+    for ( ; stmt; stmt = stmt->next) {
         stmt->process(*this);
+    }
+}
+
+void machine_t::load(decl_p decl)
+{
+    for (; decl; decl = decl->next)
+        decl->process(*this);
+}
+
+void machine_t::execute()
+{
+    for (stmt_p stmt : stmts)
+        exec(stmt);
 }
 
 number_t machine_t::call(const func_call_t& call)
@@ -81,17 +106,19 @@ number_t machine_t::call(const func_call_t& call)
         return this->call(*user_defined_func->second, argc, argv);
     }
     
+    // find native method:
     auto native_method = native_methods.find(call.name);
     if (native_method != native_methods.end()) {
         return native_method->second.func(native_method->second.context, argc, argv);
     }
 
-    // TODO support native functions
     throw undef_func_error{ call.name };
 }
 
 number_t machine_t::call(const func_defn_t& func, int argc, number_t argv[MAX_ARGS])
 {
+    debug << func.name << "()" << std::endl;
+
     // check args:
     int required_argc = 0;
     for (args_p arg = func.args; arg; arg = arg->next)
@@ -109,7 +136,7 @@ number_t machine_t::call(const func_defn_t& func, int argc, number_t argv[MAX_AR
 
     try {
         var_scope_t *prev_scope = scope;
-        on_exit_scope([this, prev_scope] {
+        auto unwind = on_exit_scope([this, prev_scope] {
             scope = prev_scope;
         });
         
@@ -125,6 +152,15 @@ number_t machine_t::call(const func_defn_t& func, int argc, number_t argv[MAX_AR
     }
     catch (return_exception r) {
         value = r.value;
+    }
+
+    // remember local variables so they can be referenced further:
+    for (auto& pair : local_scope) {
+        auto var = global_scope.find(pair.first);
+        if (var == global_scope.end())
+            memory_scope.emplace(pair.first, std::move(pair.second));
+        else
+            var->second = std::move(pair.second);
     }
 
     return value;
@@ -265,7 +301,7 @@ void machine_t::process(const root_node_t& node)
 
 void machine_t::process(const stmt_decl_t& node)
 {
-    exec(node.stmt);
+    stmts.push_back(node.stmt);
 }
 
 void machine_t::process(const func_defn_t& node)

@@ -43,8 +43,15 @@ array_t::dimension_t *array_t::assure_size(array_t::dimension_t *dim, size_t siz
     size_t reserved = 1;
     while (reserved < size) reserved *= 2;
     reserved = std::max(reserved, MIN_ARRAY_SIZE);
-    dim = (dimension_t *) realloc(dim, sizeof(dimension_t) + (reserved - MIN_ARRAY_SIZE) * sizeof(variant_t));
-    memset(dim->values + dim->reserved, 0, (reserved - dim->reserved) * sizeof(variant_t));
+    size_t required_size = sizeof(dimension_t) + (reserved - MIN_ARRAY_SIZE) * sizeof(variant_t);
+    if (dim) {
+        dim = (dimension_t *)realloc(dim, required_size);
+        memset(dim->values + dim->reserved, 0, (reserved - dim->reserved) * sizeof(variant_t));
+    }
+    else {
+        dim = (dimension_t *)malloc(required_size);
+        memset(dim->values, 0, reserved * sizeof(variant_t));
+    }
     dim->reserved = reserved;
     dim->size = size;
     return dim;
@@ -52,13 +59,11 @@ array_t::dimension_t *array_t::assure_size(array_t::dimension_t *dim, size_t siz
 
 void array_t::cleanup(int depth, array_t::dimension_t *dim)
 {
-    if (dim == nullptr)
+    if (depth >= ndims || dim == nullptr)
         return;
 
-    if (++depth < ndims) {
-        for (int32_t i = 0; i < dim->reserved; i++)
-            cleanup(depth, dim->values[i].dim);
-    }
+    for (int32_t i = 0; i < dim->reserved; i++)
+        cleanup(depth + 1, dim->values[i].dim);
     free(dim);
 }
 

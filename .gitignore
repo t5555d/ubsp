@@ -249,3 +249,4 @@ ModelManifest.xml
 .fake/
 /specs
 /hevc.txt
+*.bit

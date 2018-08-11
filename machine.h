@@ -5,6 +5,7 @@
 #include "array.h"
 #include "native.h"
 #include <map>
+#include <list>
 #include <string>
 
 NAMESPACE_UBSP_BEGIN;
@@ -14,17 +15,20 @@ class machine_t : private syntax_processor_i
 public:
 
     machine_t();
-
-    number_t call(const func_call_t& call);
-    number_t eval(expr_p expr, number_t default_value = 0);
-    void exec(stmt_p stmt);
+    void load(decl_p decl);
+    void execute();
 
     number_t get(const lvalue_t& lval);
     void put(const lvalue_t& lval, number_t n);
 
     template<typename T>
-    void export_native_object(const char *name, T *context, export_record_t<T> *exports) {
-        native_objects.emplace(name, native_object_t{ context, exports });
+    void export_native_object(const char *name, T *context, const export_record_t<T> *exports) {
+        native_objects.emplace(name, native_object_t{ context, (const export_record_t<void> *) exports });
+    }
+
+    template<typename T>
+    void export_native_object(const char *name, T& context, const export_record_t<T> *exports) {
+        native_objects.emplace(name, native_object_t{ &context, (const export_record_t<void> *) exports });
     }
 
 private:
@@ -35,7 +39,7 @@ private:
     struct native_object_t
     {
         void *context;
-        export_record_t<void> *exports;
+        const export_record_t<void> *exports;
     };
 
     struct native_method_t
@@ -48,10 +52,14 @@ private:
     std::map<name_t, native_method_t> native_methods;
 
     std::map<name_t, const func_defn_t *> funcs;
-    var_scope_t global_scope, *scope;
+    std::list<stmt_p> stmts;
+    var_scope_t global_scope, memory_scope, *scope;
     number_t value;
 
     number_t call(const func_defn_t& func, int argc, number_t argv[MAX_ARGS]);
+    number_t call(const func_call_t& call);
+    number_t eval(expr_p expr, number_t default_value = 0);
+    void exec(stmt_p stmt);
 
     virtual void process(const const_expr_t&) override;
     virtual void process(const lval_expr_t&) override;
