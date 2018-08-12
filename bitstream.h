@@ -23,6 +23,7 @@ public:
     bool more_data_in_byte_stream();
     bool more_rbsp_trailing_data();
     bool more_rbsp_data();
+    size_t skip_rbsp_data();
 
     uint64_t read_bits(int length);
     uint64_t next_bits(int length);
@@ -62,6 +63,7 @@ private:
     static number_t exp_more_data_in_byte_stream(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
     static number_t exp_more_rbsp_trailing_data(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
     static number_t exp_more_rbsp_data(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
+    static number_t exp_skip_rbsp_data(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
 };
 
 NAMESPACE_UBSP_END;

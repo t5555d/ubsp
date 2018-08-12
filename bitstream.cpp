@@ -47,6 +47,8 @@ uint64_t rbsp_stream_t::read_bits(int length)
 {
     if (length < 0)
         throw "read_bits with negative (uninitialized) length";
+    if (length == 0)
+        return 0;
     uint64_t result = 0;
 
     int count = 0;
@@ -100,12 +102,28 @@ bool rbsp_stream_t::more_rbsp_trailing_data()
 bool rbsp_stream_t::more_rbsp_data()
 {
     fill_buffer(4);
-    rbsp_stream_t temp = *this;
-    byte_t bits = bit_pos ? bit_buf << bit_pos : temp.read_byte();
+    size_t save_pos = read_pos;
+    auto rollback = on_exit_scope([this, save_pos]() {
+        read_pos = save_pos;
+    });
+    byte_t bits = bit_pos ? bit_buf << bit_pos : read_byte();
     if (bits & 0x7F) return true;
-    if (temp.read_byte()) return true;
-    if (temp.read_byte()) return true;
-    return (temp.read_byte() & 0xFE) != 0;
+    if (read_byte()) return true;
+    if (read_byte()) return true;
+    return (read_byte() & 0xFE) != 0;
+}
+
+size_t rbsp_stream_t::skip_rbsp_data()
+{
+    if (!byte_aligned())
+        bit_pos = (bit_pos + 7) & ~7;
+
+    size_t init_pos = read_pos;
+    while (more_rbsp_trailing_data()) {
+        read_byte();
+    }
+
+    return read_pos - init_pos;
 }
 
 int rbsp_stream_t::read_exp_golomb_prefix()
@@ -120,7 +138,7 @@ uint64_t rbsp_stream_t::read_unsigned_exp_golomb()
 {
     int length = read_exp_golomb_prefix();
     uint64_t code = read_bits(length);
-    return (UINT64_MAX >> (64 - length)) + code;
+    return (1LL << length) - 1 + code;
 }
 
 int64_t rbsp_stream_t::read_signed_exp_golomb()
@@ -149,6 +167,7 @@ const export_record_t<rbsp_stream_t> rbsp_stream_t::export_table[] = {
     { "more_data_in_byte_stream", rbsp_stream_t::exp_more_data_in_byte_stream },
     { "more_rbsp_trailing_data", rbsp_stream_t::exp_more_rbsp_trailing_data },
     { "more_rbsp_data", rbsp_stream_t::exp_more_rbsp_data },
+    { "skip_rbsp_data", rbsp_stream_t::exp_skip_rbsp_data },
     { nullptr }
 };
 
@@ -216,6 +235,12 @@ number_t rbsp_stream_t::exp_more_rbsp_data(rbsp_stream_t *in, int argc, number_t
 {
     if (argc != 0) throw wrong_argc_error{ "more_rbsp_data", 0, argc };
     return in->more_rbsp_data();
+}
+
+number_t rbsp_stream_t::exp_skip_rbsp_data(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
+{
+    if (argc != 0) throw wrong_argc_error{ "skip_rbsp_data", 0, argc };
+    return in->skip_rbsp_data();
 }
 
 NAMESPACE_UBSP_END;
