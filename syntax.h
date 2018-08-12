@@ -191,6 +191,13 @@ struct stmt_decl_t : declaration_i
     PROCESS_IMPL;
 };
 
+struct infer_decl_t : declaration_i
+{
+    name_t name;
+    expr_p expr;
+    PROCESS_IMPL;
+};
+
 struct func_defn_t : declaration_i
 {
     name_t name;

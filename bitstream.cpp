@@ -45,7 +45,8 @@ bool rbsp_stream_t::more_data_in_byte_stream()
 
 uint64_t rbsp_stream_t::read_bits(int length)
 {
-    if (length == 0) return 0;
+    if (length < 0)
+        throw "read_bits with negative (uninitialized) length";
     uint64_t result = 0;
 
     int count = 0;

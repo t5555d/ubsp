@@ -31,25 +31,41 @@ int machine_t::eval_args(number_t argv[MAX_ARGS], expr_p expr)
     return argc;
 }
 
+array_t& machine_t::find(name_t name)
+{
+    auto var = scope->find(name);
+    if (var != scope->end())
+        return var->second;
+
+    var = global_scope.find(name);
+    if (var != global_scope.end())
+        return var->second;
+
+    var = memory_scope.find(name);
+    if (var != memory_scope.end()) {
+        auto inserted = global_scope.emplace(name, std::move(var->second));
+        memory_scope.erase(var);
+        return inserted.first->second;
+    }
+
+    auto infer = infers.find(name);
+    if (infer != infers.end()) {
+        number_t value = eval(infer->second);
+        auto inserted = scope->emplace(name, value);
+        return inserted.first->second;
+    }
+
+    throw undef_var_error{ name };
+}
+
 number_t machine_t::get(const lvalue_t& lval)
 {
-    auto var = scope->find(lval.name);
-    if (var == scope->end()) {
-        var = global_scope.find(lval.name);
-        if (var == global_scope.end()) {
-            var = memory_scope.find(lval.name);
-            if (var == memory_scope.end())
-                throw undef_var_error{ lval.name };
-            auto inserted = global_scope.emplace(lval.name, std::move(var->second));
-            memory_scope.erase(var);
-            var = inserted.first;
-        }
-    }
+    array_t& value = find(lval.name);
 
     number_t index[MAX_ARGS];
     int ndims = eval_args(index, lval.index);
 
-    return var->second.get(ndims, index);
+    return value.get(ndims, index);
 }
 
 void machine_t::put(const lvalue_t& lval, number_t n)
@@ -302,6 +318,11 @@ void machine_t::process(const root_node_t& node)
 void machine_t::process(const stmt_decl_t& node)
 {
     stmts.push_back(node.stmt);
+}
+
+void machine_t::process(const infer_decl_t& node)
+{
+    infers[node.name] = node.expr;
 }
 
 void machine_t::process(const func_defn_t& node)

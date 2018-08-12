@@ -21,7 +21,7 @@
     ubsp::syntax_node_i    *node;
     ubsp::statement_i      *stmt;
     ubsp::expression_i     *expr;
-	ubsp::argument_t       *args;
+    ubsp::argument_t       *args;
 }
 
 %{
@@ -45,7 +45,7 @@
 %token IF ELSE
 %token DO WHILE FOR
 %token RETURN BREAK CONTINUE
-%token GLOBAL EXTERN
+%token GLOBAL EXTERN INFER
 
 %nonassoc RETURN
 %nonassoc IDENT
@@ -73,8 +73,10 @@ input: defn
     | defn input
 
 defn: GLOBAL stmt                               { runtime->register_stmt($2); }
+    | INFER IDENT '=' expr                      { runtime->register_infer($2, $4); }
     | IDENT '(' args0N ')' '{' stmt0N '}'       { runtime->register_func($1, $3, $6); }
-	| EXTERN IDENT '(' ')' '=' IDENT '.' IDENT  { runtime->register_func($2, $6, $8); }
+    | EXTERN IDENT '(' ')' '=' IDENT '.' IDENT  { runtime->register_func($2, $6, $8); }
+    | EXTERN IDENT '.' IDENT '(' ')'            { runtime->register_func($4, $2, $4); }
 
 /* definitions */
 
@@ -91,7 +93,7 @@ chng: call                      { $$ = runtime->create_call_expr($1); }
     | lval DEC %prec POSTFIX    { $$ = runtime->create_incr_expr($1, $2); }
 
 stmt: '{' stmt0N '}'            { $$ = $2; }
-	| init						{ $$ = $1; }
+    | init                      { $$ = $1; }
     | lval call                 { $$ = runtime->create_load_stmt($1, $2); }
     | RETURN                    { $$ = runtime->create_return_stmt(); }
     | RETURN expr               { $$ = runtime->create_return_stmt($2); }
@@ -144,7 +146,7 @@ expr0N: expr1N | /*empty*/      { $$ = nullptr; }
 index0N: /*empty*/              { $$ = nullptr; }
      | '[' expr ']' index0N     { $$ = runtime->chain($2, $4); }
 
-args: IDENT						{ $$ = runtime->create_argument($1); }
+args: IDENT                     { $$ = runtime->create_argument($1); }
 args1N: args | args ',' args1N  { $$ = runtime->chain($1, $3); }
 args0N: args1N | /*empty*/      { $$ = nullptr; }
 

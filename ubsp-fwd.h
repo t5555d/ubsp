@@ -45,6 +45,7 @@ struct root_node_t;
 struct stmt_decl_t;
 struct func_defn_t;
 struct func_decl_t;
+struct infer_decl_t;
 
 struct lvalue_t;
 struct func_call_t;
@@ -79,6 +80,7 @@ struct syntax_processor_i
     virtual void process(const stmt_decl_t&) = 0;
     virtual void process(const func_defn_t&) = 0;
     virtual void process(const func_decl_t&) = 0;
+    virtual void process(const infer_decl_t&) = 0;
 };
 
 

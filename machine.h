@@ -52,9 +52,12 @@ private:
     std::map<name_t, native_method_t> native_methods;
 
     std::map<name_t, const func_defn_t *> funcs;
+    std::map<name_t, expr_p> infers;
     std::list<stmt_p> stmts;
     var_scope_t global_scope, memory_scope, *scope;
     number_t value;
+
+    array_t& find(name_t name);
 
     number_t call(const func_defn_t& func, int argc, number_t argv[MAX_ARGS]);
     number_t call(const func_call_t& call);
@@ -81,6 +84,7 @@ private:
     virtual void process(const stmt_decl_t&) override;
     virtual void process(const func_defn_t&) override;
     virtual void process(const func_decl_t&) override;
+    virtual void process(const infer_decl_t&) override;
 };
 
 struct undef_var_error {

@@ -40,6 +40,9 @@ int main(int argc, const char *argv[])
     catch (undef_var_error e) {
         std::cerr << "Undefined variable: " << e.name << std::endl;
     }
+    catch (const char *e) {
+        std::cerr << "Error: " << e << std::endl;
+    }
 
     return 0;
 }

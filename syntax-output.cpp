@@ -193,6 +193,11 @@ void syntax_output_t::process(const stmt_decl_t& node)
     output_block(node.stmt);
 }
 
+void syntax_output_t::process(const infer_decl_t& node)
+{
+    *this << "infer " << node.name << " = " << node.expr;
+}
+
 void syntax_output_t::process(const func_defn_t& node)
 {
     *this << node.name << "(" << node.args << ") ";
