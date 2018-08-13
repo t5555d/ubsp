@@ -35,6 +35,7 @@ private:
     typedef std::map<name_t, array_t> var_scope_t;
 
     int eval_args(number_t argv[MAX_ARGS], expr_p expr);
+    int eval_args(number_t argv[MAX_ARGS], const func_call_t& call);
 
     struct native_object_t
     {
@@ -51,8 +52,13 @@ private:
     std::map<std::string, native_object_t> native_objects;
     std::map<name_t, native_method_t> native_methods;
 
+    typedef std::map<name_t, expr_p> infer_map_t;
+
     std::map<name_t, const func_defn_t *> funcs;
-    std::map<name_t, expr_p> infers;
+    infer_map_t global_infers;
+    std::map<name_t, infer_map_t> scoped_infers;
+    infer_map_t *scope_infers;
+
     std::list<stmt_p> stmts;
     var_scope_t global_scope, memory_scope, *scope;
     number_t value;

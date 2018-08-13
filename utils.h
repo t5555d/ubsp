@@ -5,21 +5,22 @@
 
 NAMESPACE_UBSP_BEGIN;
 
-template<typename Func>
-class destruct_caller
+template<typename T>
+class value_restore
 {
-    Func func;
+    T prev_value;
+    T& value;
 public:
-    destruct_caller(Func f) : func(f) {}
-    ~destruct_caller() { func(); }
+    value_restore(T& v) : value(v), prev_value(v) {}
+    ~value_restore() { value = prev_value; }
 };
 
-
-template<typename Func>
-destruct_caller<Func> on_exit_scope(Func f)
+template<typename T>
+value_restore<T> remember(T& var)
 {
-    return destruct_caller<Func>(f);
+    return value_restore<T>(var);
 }
+
 
 NAMESPACE_UBSP_END;
 

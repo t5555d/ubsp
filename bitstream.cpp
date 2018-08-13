@@ -102,10 +102,7 @@ bool rbsp_stream_t::more_rbsp_trailing_data()
 bool rbsp_stream_t::more_rbsp_data()
 {
     fill_buffer(4);
-    size_t save_pos = read_pos;
-    auto rollback = on_exit_scope([this, save_pos]() {
-        read_pos = save_pos;
-    });
+    auto rollback = remember(read_pos);
     byte_t bits = bit_pos ? bit_buf << bit_pos : read_byte();
     if (bits & 0x7F) return true;
     if (read_byte()) return true;

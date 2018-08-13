@@ -17,6 +17,7 @@ syntax_output_t debug(std::cerr);
 machine_t::machine_t()
 {
     scope = &global_scope;
+    scope_infers = nullptr;
 }
 
 //
@@ -29,6 +30,15 @@ int machine_t::eval_args(number_t argv[MAX_ARGS], expr_p expr)
     for (expr_p arg = expr; arg; arg = arg->next)
         argv[argc++] = eval(arg);
     return argc;
+}
+
+int machine_t::eval_args(number_t argv[MAX_ARGS], const func_call_t& call)
+{
+    auto unwind = remember(scope_infers);
+    auto i = scoped_infers.find(call.name);
+    if (i != scoped_infers.end())
+        scope_infers = &i->second;
+    return eval_args(argv, call.args);
 }
 
 array_t& machine_t::find(name_t name)
@@ -48,8 +58,8 @@ array_t& machine_t::find(name_t name)
         return inserted.first->second;
     }
 
-    auto infer = infers.find(name);
-    if (infer != infers.end()) {
+    auto infer = global_infers.find(name);
+    if (infer != global_infers.end()) {
         number_t value = eval(infer->second);
         auto inserted = scope->emplace(name, value);
         return inserted.first->second;
@@ -60,6 +70,12 @@ array_t& machine_t::find(name_t name)
 
 number_t machine_t::get(const lvalue_t& lval)
 {
+    if (scope_infers) {
+        auto i = scope_infers->find(lval.name);
+        if (i != scope_infers->end())
+            return eval(i->second);
+    }
+
     array_t& value = find(lval.name);
 
     number_t index[MAX_ARGS];
@@ -114,7 +130,7 @@ number_t machine_t::call(const func_call_t& call)
 {
     // evaluate arguments:
     number_t argv[MAX_ARGS];
-    int argc = eval_args(argv, call.args);
+    int argc = eval_args(argv, call);
 
     // find function:
     auto user_defined_func = funcs.find(call.name);
@@ -151,11 +167,7 @@ number_t machine_t::call(const func_defn_t& func, int argc, number_t argv[MAX_AR
         local_scope.emplace(arg->name, *argv++);
 
     try {
-        var_scope_t *prev_scope = scope;
-        auto unwind = on_exit_scope([this, prev_scope] {
-            scope = prev_scope;
-        });
-        
+        auto unwind = remember(scope);
         scope = &local_scope;
         exec(func.body);
         value = 0; // default return value
@@ -302,6 +314,10 @@ void machine_t::process(const for_loop_stmt_t& node)
 
 void machine_t::process(const load_stmt_t& node)
 {
+    auto rollback = remember(scope_infers);
+    auto i = scoped_infers.find(node.lval.name);
+    if (i != scoped_infers.end())
+        scope_infers = &i->second;
     put(node.lval, call(node.call));
 }
 
@@ -322,7 +338,15 @@ void machine_t::process(const stmt_decl_t& node)
 
 void machine_t::process(const infer_decl_t& node)
 {
-    infers[node.name] = node.expr;
+    if (node.scope == nullptr) {
+        global_infers[node.name] = node.expr;
+    }
+    else {
+        auto i = scoped_infers.find(node.scope);
+        if (i == scoped_infers.end())
+            i = scoped_infers.emplace(node.scope, infer_map_t()).first;
+        i->second[node.name] = node.expr;
+    }
 }
 
 void machine_t::process(const func_defn_t& node)

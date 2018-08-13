@@ -318,7 +318,7 @@ CREATE_NODE_FUNC_3(loop_stmt, cond, body, pre_check);
 CREATE_NODE_FUNC_3(for_loop_stmt, cond, body, incr);
 
 CREATE_NODE_FUNC_1(stmt_decl, stmt);
-CREATE_NODE_FUNC_2(infer_decl, name, expr);
+CREATE_NODE_FUNC_3(infer_decl, scope, name, expr);
 CREATE_NODE_FUNC_3(func_defn, name, args, body);
 CREATE_NODE_FUNC_3(func_decl, name, object, method);
 
@@ -349,9 +349,9 @@ void syntax_loader_t::register_stmt(stmt_p stmt)
     register_decl(decl);
 }
 
-void syntax_loader_t::register_infer(name_t name, expr_p expr)
+void syntax_loader_t::register_infer(name_t scope, name_t name, expr_p expr)
 {
-    auto decl = create_infer_decl(name, expr);
+    auto decl = create_infer_decl(scope, name, expr);
     register_decl(decl);
 }
 

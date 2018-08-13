@@ -193,6 +193,7 @@ struct stmt_decl_t : declaration_i
 
 struct infer_decl_t : declaration_i
 {
+    name_t scope;
     name_t name;
     expr_p expr;
     PROCESS_IMPL;

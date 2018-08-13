@@ -73,7 +73,8 @@ input: defn
     | defn input
 
 defn: GLOBAL stmt                               { runtime->register_stmt($2); }
-    | INFER IDENT '=' expr                      { runtime->register_infer($2, $4); }
+    | INFER IDENT '=' expr                      { runtime->register_infer(nullptr, $2, $4); }
+    | INFER IDENT '.' IDENT '=' expr            { runtime->register_infer($2, $4, $6); }
     | IDENT '(' args0N ')' '{' stmt0N '}'       { runtime->register_func($1, $3, $6); }
     | EXTERN IDENT '(' ')' '=' IDENT '.' IDENT  { runtime->register_func($2, $6, $8); }
     | EXTERN IDENT '.' IDENT '(' ')'            { runtime->register_func($4, $2, $4); }

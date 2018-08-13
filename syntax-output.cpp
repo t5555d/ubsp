@@ -195,7 +195,10 @@ void syntax_output_t::process(const stmt_decl_t& node)
 
 void syntax_output_t::process(const infer_decl_t& node)
 {
-    *this << "infer " << node.name << " = " << node.expr;
+    if (node.scope)
+        *this << "infer " << node.scope << "." << node.name << " = " << node.expr;
+    else
+        *this << "infer " << node.name << " = " << node.expr;
 }
 
 void syntax_output_t::process(const func_defn_t& node)
