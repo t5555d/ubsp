@@ -163,9 +163,10 @@ struct loop_stmt_t : statement_i
 
 struct for_loop_stmt_t : statement_i
 {
+    stmt_p init;
     expr_p cond;
-    stmt_p body;
     stmt_p incr;
+    stmt_p body;
     PROCESS_IMPL;
 };
 
@@ -218,7 +219,7 @@ struct func_decl_t : declaration_i
 // memory management:
 // fixed size buffer is allocated for all nodes
 
-constexpr size_t MAX_NODE_SIZE = sizeof(chng_expr_t);
+constexpr size_t MAX_NODE_SIZE = sizeof(for_loop_stmt_t);
 
 union node_buffer_t
 {

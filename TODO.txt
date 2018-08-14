@@ -1,7 +1,7 @@
 TODO
 - support enums and/or tables
-- embed init in for loop nodes
++ embed init in for loop nodes
 - implement import (e.g. for SEI messages)
 + infer variable values (if they are not loaded)
-- support dependent-length codes, e.g. u(v), i(v)
++ support dependent-length codes, e.g. u(v), i(v)
 - check variable values (that are supposed to be fixed)

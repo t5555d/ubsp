@@ -166,7 +166,9 @@ void syntax_output_t::process(const loop_stmt_t& node)
 
 void syntax_output_t::process(const for_loop_stmt_t& node)
 {
-    *this << "for (; " << node.cond << "; ";
+    *this << "for (";
+    output_inits(node.init);
+    *this << "; " << node.cond << "; ";
     output_inits(node.incr);
     *this << ") ";
     output_block(node.body);

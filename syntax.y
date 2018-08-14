@@ -105,12 +105,8 @@ stmt: '{' stmt0N '}'            { $$ = $2; }
     | IF '(' expr ')' stmt ELSE stmt { $$ = runtime->create_cond_stmt($3, $5, $7); }
     | WHILE '(' expr ')' stmt   { $$ = runtime->create_loop_stmt($3, $5, true); }
     | DO stmt WHILE '(' expr ')' { $$ = runtime->create_loop_stmt($5, $2, false); }
-    | FOR '(' init0N ';' expr ';' init0N ')' stmt {
-        auto loop = runtime->create_for_loop_stmt($5, $9, $7);
-        $$ = runtime->chain<statement_i>($3, loop); }
-    | FOR '(' init0N ';' ';' init0N ')' stmt {
-        auto loop = runtime->create_for_loop_stmt(nullptr, $8, $6);
-        $$ = runtime->chain<statement_i>($3, loop); }
+    | FOR '(' init0N ';' expr ';' init0N ')' stmt { $$ = runtime->create_for_loop_stmt($3, $5, $7, $9); }
+    | FOR '(' init0N ';' ';' init0N ')' stmt { $$ = runtime->create_for_loop_stmt($3, 0, $6, $8); }
 
 
 expr: '(' expr ')'      { $$ = $2; }

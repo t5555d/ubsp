@@ -315,7 +315,6 @@ CREATE_NODE_FUNC_1(return_stmt, value);
 CREATE_NODE_FUNC_1(expr_stmt, expr);
 CREATE_NODE_FUNC_3(cond_stmt, cond, stmt_true, stmt_false);
 CREATE_NODE_FUNC_3(loop_stmt, cond, body, pre_check);
-CREATE_NODE_FUNC_3(for_loop_stmt, cond, body, incr);
 
 CREATE_NODE_FUNC_1(stmt_decl, stmt);
 CREATE_NODE_FUNC_3(infer_decl, scope, name, stmt);
@@ -323,6 +322,16 @@ CREATE_NODE_FUNC_3(func_defn, name, args, body);
 CREATE_NODE_FUNC_3(func_decl, name, object, method);
 
 CREATE_NODE_FUNC_1(argument, name);
+
+for_loop_stmt_t *syntax_loader_t::create_for_loop_stmt(stmt_p init, expr_p cond, stmt_p incr, stmt_p body)
+{
+    auto node = alloc_node<for_loop_stmt_t>();
+    node->init = init;
+    node->cond = cond;
+    node->incr = incr;
+    node->body = body;
+    return node;
+}
 
 incr_expr_t *syntax_loader_t::create_incr_expr(lvalue_t lval, binary_oper_type_t type)
 {

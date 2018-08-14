@@ -311,7 +311,7 @@ void machine_t::process(const loop_stmt_t& node)
 
 void machine_t::process(const for_loop_stmt_t& node)
 {
-    for (; eval(node.cond, 1); exec(node.incr)) {
+    for (exec(node.init); eval(node.cond, 1); exec(node.incr)) {
         try {
             exec(node.body);
         }

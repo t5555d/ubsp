@@ -63,7 +63,7 @@ public:
     expr_stmt_t     *create_expr_stmt(expr_p expr);
     cond_stmt_t     *create_cond_stmt(expr_p cond, stmt_p stmt_true, stmt_p stmt_false = nullptr);
     loop_stmt_t     *create_loop_stmt(expr_p cond, stmt_p body, bool pre_check);
-    for_loop_stmt_t *create_for_loop_stmt(expr_p cond, stmt_p incr, stmt_p body);
+    for_loop_stmt_t *create_for_loop_stmt(stmt_p init, expr_p cond, stmt_p incr, stmt_p body);
 
     func_defn_t     *create_func_defn(name_t name, args_p args, stmt_p body);
     func_decl_t     *create_func_decl(name_t name, name_t object, name_t method);
