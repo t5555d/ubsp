@@ -15,7 +15,7 @@ class machine_t : private syntax_processor_i
 public:
 
     machine_t();
-    void load(decl_p decl);
+    void load(const syntax_t& syntax);
     void execute();
 
     number_t get(const lvalue_t& lval);
@@ -29,6 +29,10 @@ public:
     template<typename T>
     void export_native_object(const char *name, T& context, const export_record_t<T> *exports) {
         native_objects.emplace(name, native_object_t{ &context, (const export_record_t<void> *) exports });
+    }
+
+    void export_native_object(const char *name, const export_record_t<void> *exports) {
+        native_objects.emplace(name, native_object_t{ nullptr, exports });
     }
 
 private:
@@ -52,7 +56,7 @@ private:
     std::map<std::string, native_object_t> native_objects;
     std::map<name_t, native_method_t> native_methods;
 
-    typedef std::map<name_t, expr_p> infer_map_t;
+    typedef std::map<name_t, stmt_p> infer_map_t;
 
     std::map<name_t, const func_defn_t *> funcs;
     infer_map_t global_infers;
@@ -94,6 +98,10 @@ private:
 };
 
 struct undef_var_error {
+    name_t name;
+};
+
+struct infer_var_error {
     name_t name;
 };
 

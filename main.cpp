@@ -26,9 +26,10 @@ int main(int argc, const char *argv[])
 
     machine_t machine;
     machine.export_native_object("input", rbsp_stream, rbsp_stream_t::export_table);
+    machine.export_native_object("math", native_math);
 
     try {
-        machine.load(syntax.get_tree_root());
+        machine.load(syntax);
         machine.execute();
     }
     catch (undef_method_error e) {
@@ -39,6 +40,9 @@ int main(int argc, const char *argv[])
     }
     catch (undef_var_error e) {
         std::cerr << "Undefined variable: " << e.name << std::endl;
+    }
+    catch (infer_var_error e) {
+        std::cerr << "Failed to infer variable: " << e.name << std::endl;
     }
     catch (const char *e) {
         std::cerr << "Error: " << e << std::endl;

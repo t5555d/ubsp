@@ -32,7 +32,7 @@
 %lex-param {ubsp::syntax_loader_t *runtime}
 %parse-param {ubsp::syntax_loader_t *runtime}
 
-%type <stmt> stmt stmt0N
+%type <stmt> stmt stmt1N stmt0N
 %type <stmt> init init1N init0N
 %type <args> args args1N args0N
 %type <expr> expr expr1N expr0N 
@@ -73,7 +73,8 @@ input: defn
     | defn input
 
 defn: GLOBAL stmt                               { runtime->register_stmt($2); }
-    | INFER IDENT '=' expr                      { runtime->register_infer(nullptr, $2, $4); }
+    | INFER IDENT '=' expr                      { runtime->register_infer(0, $2, $4); }
+    | INFER IDENT '{' stmt1N '}'                { runtime->register_infer(0, $2, $4); }
     | INFER IDENT '.' IDENT '=' expr            { runtime->register_infer($2, $4, $6); }
     | IDENT '(' args0N ')' '{' stmt0N '}'       { runtime->register_func($1, $3, $6); }
     | EXTERN IDENT '(' ')' '=' IDENT '.' IDENT  { runtime->register_func($2, $6, $8); }
@@ -156,3 +157,5 @@ init0N: init1N | /*empty*/      { $$ = nullptr; }
 
 stmt0N: /*empty*/               { $$ = nullptr; }
     | stmt stmt0N               { $$ = runtime->chain($1, $2); }
+
+stmt1N: stmt | stmt stmt1N      { $$ = runtime->chain($1, $2); }

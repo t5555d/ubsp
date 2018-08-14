@@ -19,10 +19,8 @@ size_t rbsp_stream_t::fill_buffer(int count)
         return buf_size;
 
     byte_t buf[BUFFER_SIZE];
-    size_t pos1 = input.tellg();
     input.read(buf, BUFFER_SIZE - buf_size);
-    size_t pos2 = input.tellg();
-    size_t read = pos2 - pos1;
+    size_t read = input.gcount();
 
     for (int i = 0; i < read; i++) {
         byte_t b = buf[i];
@@ -60,8 +58,8 @@ uint64_t rbsp_stream_t::read_bits(int length)
 
     while (count < length) {
         int byte = read_byte();
-        if (byte < 0)
-            throw std::logic_error("Not enough bits in the bitstream");
+        if (byte < 0) 
+            throw "no more data in the byte stream";
 
         bit_buf = byte;
         result = (result << 8) | bit_buf;

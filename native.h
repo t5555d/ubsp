@@ -24,6 +24,8 @@ struct export_record_t
     native_func_t<Context> func;
 };
 
+export_record_t<void> native_math[];
+
 NAMESPACE_UBSP_END;
 
 #endif // !_UBSP_NATIVE_

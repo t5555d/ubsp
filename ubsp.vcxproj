@@ -162,6 +162,7 @@
     <ClCompile Include="bitstream.cpp" />
     <ClCompile Include="machine.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="native.cpp" />
     <ClCompile Include="operators.cpp" />
     <ClCompile Include="syntax-loader.cpp" />
     <ClCompile Include="syntax-output.cpp" />

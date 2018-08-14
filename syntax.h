@@ -195,7 +195,7 @@ struct infer_decl_t : declaration_i
 {
     name_t scope;
     name_t name;
-    expr_p expr;
+    stmt_p stmt;
     PROCESS_IMPL;
 };
 

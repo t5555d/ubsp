@@ -60,9 +60,11 @@ array_t& machine_t::find(name_t name)
 
     auto infer = global_infers.find(name);
     if (infer != global_infers.end()) {
-        number_t value = eval(infer->second);
-        auto inserted = scope->emplace(name, value);
-        return inserted.first->second;
+        exec(infer->second);
+        auto var = scope->find(name);
+        if (var != scope->end())
+            return var->second;
+        throw infer_var_error{ name };
     }
 
     throw undef_var_error{ name };
@@ -72,8 +74,9 @@ number_t machine_t::get(const lvalue_t& lval)
 {
     if (scope_infers) {
         auto i = scope_infers->find(lval.name);
-        if (i != scope_infers->end())
-            return eval(i->second);
+        if (i != scope_infers->end()) {
+            exec(i->second);
+        }
     }
 
     array_t& value = find(lval.name);
@@ -104,6 +107,9 @@ number_t machine_t::eval(expr_p expr, number_t default_value)
 {
     if (!expr) return default_value;
     expr->process(*this);
+
+    //debug << "        " << expr << " -> " << value << std::endl;
+
     return value;
 }
 
@@ -114,10 +120,9 @@ void machine_t::exec(stmt_p stmt)
     }
 }
 
-void machine_t::load(decl_p decl)
+void machine_t::load(const syntax_t& syntax)
 {
-    for (; decl; decl = decl->next)
-        decl->process(*this);
+    syntax.get_tree_root()->process(*this);
 }
 
 void machine_t::execute()
@@ -242,6 +247,13 @@ void machine_t::process(const binary_oper_t& node)
 {
     auto oper = get_operator_info(node.type);
     number_t left = eval(node.left);
+
+    if (node.type == binary_oper_type_t::AND && left == 0)
+        return;
+
+    if (node.type == binary_oper_type_t::OR && left != 0)
+        return;
+
     number_t right = eval(node.right);
     value = oper.calc(left, right);
 }
@@ -339,13 +351,13 @@ void machine_t::process(const stmt_decl_t& node)
 void machine_t::process(const infer_decl_t& node)
 {
     if (node.scope == nullptr) {
-        global_infers[node.name] = node.expr;
+        global_infers[node.name] = node.stmt;
     }
     else {
         auto i = scoped_infers.find(node.scope);
         if (i == scoped_infers.end())
             i = scoped_infers.emplace(node.scope, infer_map_t()).first;
-        i->second[node.name] = node.expr;
+        i->second[node.name] = node.stmt;
     }
 }
 
