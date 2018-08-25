@@ -60,11 +60,17 @@ array_t& machine_t::find(name_t name)
 
     auto infer = global_infers.find(name);
     if (infer != global_infers.end()) {
-        exec(infer->second);
-        auto var = scope->find(name);
-        if (var != scope->end())
-            return var->second;
-        throw infer_var_error{ name };
+        var_scope_t infer_scope;
+        {
+            auto prev_scope = remember(scope);
+            scope = &infer_scope;
+            exec(infer->second);
+        }
+        auto var = infer_scope.find(name);
+        if (var == infer_scope.end())
+            throw infer_var_error{ name };
+        auto inserted = scope->emplace(name, std::move(var->second));
+        return inserted.first->second;
     }
 
     throw undef_var_error{ name };
@@ -89,7 +95,7 @@ number_t machine_t::get(const lvalue_t& lval)
 
 void machine_t::put(const lvalue_t& lval, number_t n)
 {
-    debug << "    " << lval << " = " << n << std::endl;
+    //debug << "    " << lval << " = " << n << std::endl;
 
     number_t index[MAX_ARGS];
     int ndims = eval_args(index, lval.index);
@@ -137,18 +143,18 @@ number_t machine_t::call(const func_call_t& call)
     number_t argv[MAX_ARGS];
     int argc = eval_args(argv, call);
 
-    // find function:
-    auto user_defined_func = funcs.find(call.name);
-    if (user_defined_func != funcs.end()) {
-        return this->call(*user_defined_func->second, argc, argv);
-    }
-    
     // find native method:
     auto native_method = native_methods.find(call.name);
     if (native_method != native_methods.end()) {
         return native_method->second.func(native_method->second.context, argc, argv);
     }
 
+    // find function:
+    auto user_defined_func = funcs.find(call.name);
+    if (user_defined_func != funcs.end()) {
+        return this->call(*user_defined_func->second, argc, argv);
+    }
+    
     throw undef_func_error{ call.name };
 }
 
@@ -330,7 +336,9 @@ void machine_t::process(const load_stmt_t& node)
     auto i = scoped_infers.find(node.lval.name);
     if (i != scoped_infers.end())
         scope_infers = &i->second;
-    put(node.lval, call(node.call));
+    number_t value = call(node.call);
+    debug << "    " << node.lval << " = " << value << std::endl;
+    put(node.lval, value);
 }
 
 //

@@ -44,6 +44,9 @@ int main(int argc, const char *argv[])
     catch (infer_var_error e) {
         std::cerr << "Failed to infer variable: " << e.name << std::endl;
     }
+    catch (wrong_index_error e) {
+        std::cerr << "Wrong index on dimension " << e.dim << ": " << e.index << ">= " << e.size << std::endl;
+    }
     catch (const char *e) {
         std::cerr << "Error: " << e << std::endl;
     }
