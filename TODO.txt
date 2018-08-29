@@ -6,4 +6,5 @@ TODO
 + support dependent-length codes, e.g. u(v), i(v)
 - check variable values (that are supposed to be fixed)
 - pre-analyze variables: which are local and which are global
-- correct implementation of NALU/RBSP streams
++ correct implementation of NALU/RBSP streams
+- support selected SEI messages

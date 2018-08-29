@@ -22,10 +22,12 @@ int main(int argc, const char *argv[])
         return -1;
     }
 
-    rbsp_stream_t rbsp_stream(byte_stream);
+    nalu_stream_t nalu_stream(byte_stream);
+    rbsp_stream_t rbsp_stream(nalu_stream);
 
     machine_t machine;
-    machine.export_native_object("input", rbsp_stream, rbsp_stream_t::export_table);
+    machine.export_native_object("nalu", nalu_stream, nalu_stream_t::export_table);
+    machine.export_native_object("rbsp", rbsp_stream, rbsp_stream_t::export_table);
     machine.export_native_object("math", native_math);
 
     try {

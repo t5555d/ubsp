@@ -4,10 +4,80 @@
 NAMESPACE_UBSP_BEGIN;
 
 //
+// NALU stream (network abstraction layer unit)
+//
+
+nalu_stream_t::nalu_stream_t(byte_stream_t& bs) :
+    input(bs) 
+{
+}
+
+bool nalu_stream_t::next_nalu()
+{
+    // navigate to the end of current NALU
+    input.seekg(nalu_end_pos);
+
+    // seek NALU start:
+    zero_count = 0;
+    while (true) {
+        auto byte = input.get();
+        if (input.eof()) {
+            nalu_end_pos = input.tellg();
+            return false;
+        }
+        if (byte == 1 && zero_count >= 2)
+            break;
+        zero_count = byte == 0 ? zero_count + 1 : 0;
+    }
+
+    size_t nalu_beg_pos = input.tellg();
+
+    // seek NALU end:
+    zero_count = 0;
+    while (true) {
+        auto byte = input.get();
+        if (input.eof()) {
+            input.clear();
+            input.seekg(0, std::ios::end);
+            nalu_end_pos = input.tellg();
+            break;
+        }
+        if (byte <= 1 && zero_count >= 2) {
+            nalu_end_pos = size_t(input.tellg()) - 3;
+            break;
+        }
+        zero_count = byte == 0 ? zero_count + 1 : 0;
+    }
+
+    input.seekg(nalu_beg_pos);
+    zero_count = 0;
+    return true;
+}
+
+int nalu_stream_t::read_byte()
+{
+    if (!more_nalu_data()) return -1;
+    auto byte = input.get();
+    if (byte == 3 && zero_count >= 2) {
+        zero_count = 0;
+        byte = input.get();
+    }
+    zero_count = byte == 0 ? zero_count + 1 : 0;
+    return byte;
+}
+
+size_t nalu_stream_t::skip_nalu_data()
+{
+    size_t init_pos = input.tellg();
+    input.seekg(nalu_end_pos);
+    return size_t(input.tellg()) - init_pos;
+}
+
+//
 // RBSP stream (raw byte stream payload)
 //
 
-rbsp_stream_t::rbsp_stream_t(byte_stream_t& bs) :
+rbsp_stream_t::rbsp_stream_t(nalu_stream_t& bs) :
     input(bs)
 {
 }
@@ -18,27 +88,18 @@ size_t rbsp_stream_t::fill_buffer(int count)
     if (buf_size >= count)
         return buf_size;
 
-    byte_t buf[BUFFER_SIZE];
-    input.read(buf, BUFFER_SIZE - buf_size);
-    size_t read = input.gcount();
-
-    for (int i = 0; i < read; i++) {
-        byte_t b = buf[i];
-        if (zero_count < 2 || b != 3)
-            buffer[fill_pos++ & BUFFER_MASK] = b;
-        zero_count = b == 0 ? zero_count + 1 : 0;
+    while (fill_pos - read_pos < BUFFER_SIZE) {
+        auto byte = input.read_byte();
+        if (byte < 0) break;
+        buffer[fill_pos++ & BUFFER_MASK] = byte;
     }
+
     return fill_pos - read_pos;
 }
 
 int rbsp_stream_t::read_byte()
 {
     return fill_buffer(1) ? buffer[read_pos++ & BUFFER_MASK] : -1;
-}
-
-bool rbsp_stream_t::more_data_in_byte_stream()
-{
-    return fill_buffer(1) > 0;
 }
 
 uint64_t rbsp_stream_t::read_bits(int length)
@@ -88,13 +149,7 @@ uint64_t rbsp_stream_t::next_bits(int length)
 bool rbsp_stream_t::more_rbsp_trailing_data()
 {
     if (bit_pos & 7) return true; // some bits left
-    size_t buf_size = fill_buffer(3);
-    if (buf_size == 0) return false; // no bytes left
-    if (buf_size < 3) return true; // few bytes left
-    bool end = buffer[read_pos & BUFFER_MASK] == 0
-            && buffer[(read_pos + 1) & BUFFER_MASK] == 0
-            && buffer[(read_pos + 2) & BUFFER_MASK] <= 1;
-    return !end;
+    return input.more_nalu_data();
 }
 
 bool rbsp_stream_t::more_rbsp_data()
@@ -103,22 +158,18 @@ bool rbsp_stream_t::more_rbsp_data()
     auto rollback = remember(read_pos);
     byte_t bits = bit_pos ? bit_buf << bit_pos : read_byte();
     if (bits & 0x7F) return true;
-    if (read_byte()) return true;
-    if (read_byte()) return true;
-    return (read_byte() & 0xFE) != 0;
+    return input.more_nalu_data();
 }
 
 size_t rbsp_stream_t::skip_rbsp_data()
 {
-    if (!byte_aligned())
-        bit_pos = (bit_pos + 7) & ~7;
+    // flush bit position
+    bit_pos = (bit_pos + 7) & ~7;
 
-    size_t init_pos = read_pos;
-    while (more_rbsp_trailing_data()) {
-        read_byte();
-    }
+    // flush buffer
+    fill_pos = read_pos = 0;
 
-    return read_pos - init_pos;
+    return input.skip_nalu_data();
 }
 
 int rbsp_stream_t::read_exp_golomb_prefix()
@@ -150,6 +201,17 @@ int64_t rbsp_stream_t::read_signed_exp_golomb()
 // export
 //
 
+const export_record_t<nalu_stream_t> nalu_stream_t::export_table[] = {
+    { "next_nalu", nalu_stream_t::exp_next_nalu },
+    { nullptr }
+};
+
+number_t nalu_stream_t::exp_next_nalu(nalu_stream_t *in, int argc, number_t argv[MAX_ARGS])
+{
+    if (argc != 0) throw wrong_argc_error{ "next_nalu", 0, argc };
+    return in->next_nalu();
+}
+
 const export_record_t<rbsp_stream_t> rbsp_stream_t::export_table[] = {
     { "read_bits", rbsp_stream_t::exp_read_bits },
     { "next_bits", rbsp_stream_t::exp_next_bits },
@@ -159,7 +221,6 @@ const export_record_t<rbsp_stream_t> rbsp_stream_t::export_table[] = {
     { "read_signed_exp_golomb", rbsp_stream_t::exp_read_signed_exp_golomb },
     { "get_position", rbsp_stream_t::exp_get_position },
     { "byte_aligned", rbsp_stream_t::exp_byte_aligned },
-    { "more_data_in_byte_stream", rbsp_stream_t::exp_more_data_in_byte_stream },
     { "more_rbsp_trailing_data", rbsp_stream_t::exp_more_rbsp_trailing_data },
     { "more_rbsp_data", rbsp_stream_t::exp_more_rbsp_data },
     { "skip_rbsp_data", rbsp_stream_t::exp_skip_rbsp_data },
@@ -212,12 +273,6 @@ number_t rbsp_stream_t::exp_byte_aligned(rbsp_stream_t *in, int argc, number_t a
 {
     if (argc != 0) throw wrong_argc_error{ "byte_aligned", 0, argc };
     return in->byte_aligned();
-}
-
-number_t rbsp_stream_t::exp_more_data_in_byte_stream(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc != 0) throw wrong_argc_error{ "more_data_in_byte_stream", 0, argc };
-    return in->more_data_in_byte_stream();
 }
 
 number_t rbsp_stream_t::exp_more_rbsp_trailing_data(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
