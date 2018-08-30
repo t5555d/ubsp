@@ -146,7 +146,7 @@ number_t machine_t::call(const func_call_t& call)
     // find native method:
     auto native_method = native_methods.find(call.name);
     if (native_method != native_methods.end()) {
-        return native_method->second.func(native_method->second.context, argc, argv);
+        value = native_method->second.func(native_method->second.context, argc, argv);
     }
 
     // find function:
@@ -154,7 +154,10 @@ number_t machine_t::call(const func_call_t& call)
     if (user_defined_func != funcs.end()) {
         return this->call(*user_defined_func->second, argc, argv);
     }
-    
+ 
+    if (native_method != native_methods.end())
+        return value;
+
     throw undef_func_error{ call.name };
 }
 

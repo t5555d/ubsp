@@ -48,6 +48,11 @@ public:
     bool more_rbsp_data();
     size_t skip_rbsp_data();
 
+    // sei support:
+    void init_sei_payload(size_t payload_size);
+    bool more_data_in_payload();
+    bool payload_extension_present();
+
     uint64_t read_bits(int length);
     uint64_t next_bits(int length);
 
@@ -65,6 +70,7 @@ private:
 
     nalu_stream_t& input;
     size_t read_pos = 0, fill_pos = 0;
+    size_t sei_init = 0, sei_size = 0;
     size_t fill_buffer(int count);
     int read_byte();
 
@@ -85,6 +91,10 @@ private:
     static number_t exp_more_rbsp_trailing_data(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
     static number_t exp_more_rbsp_data(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
     static number_t exp_skip_rbsp_data(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
+    static number_t exp_init_sei_payload(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
+    static number_t exp_more_data_in_payload(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
+    static number_t exp_payload_extension_present(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
+
 };
 
 NAMESPACE_UBSP_END;

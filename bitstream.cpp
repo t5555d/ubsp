@@ -149,16 +149,21 @@ uint64_t rbsp_stream_t::next_bits(int length)
 bool rbsp_stream_t::more_rbsp_trailing_data()
 {
     if (bit_pos & 7) return true; // some bits left
-    return input.more_nalu_data();
+    fill_buffer(1);
+    return read_pos < fill_pos;
 }
 
 bool rbsp_stream_t::more_rbsp_data()
 {
-    fill_buffer(4);
-    auto rollback = remember(read_pos);
-    byte_t bits = bit_pos ? bit_buf << bit_pos : read_byte();
-    if (bits & 0x7F) return true;
-    return input.more_nalu_data();
+    fill_buffer(2);
+    if (bit_pos & 7) {
+        byte_t bits = bit_buf << (bit_pos & 7);
+        return bits != 0x80 || read_pos < fill_pos;
+    }
+    else {
+        byte_t bits = buffer[read_pos & BUFFER_MASK];
+        return bits != 0x80 || read_pos + 1 < fill_pos;
+    }
 }
 
 size_t rbsp_stream_t::skip_rbsp_data()
@@ -168,8 +173,38 @@ size_t rbsp_stream_t::skip_rbsp_data()
 
     // flush buffer
     fill_pos = read_pos = 0;
+    sei_init = sei_size = 0;
 
     return input.skip_nalu_data();
+}
+
+void rbsp_stream_t::init_sei_payload(size_t payload_size)
+{
+    if (!byte_aligned())
+        throw "Should be byte aligned at sei_payload";
+    sei_init = read_pos;
+    sei_size = payload_size;
+}
+
+bool rbsp_stream_t::more_data_in_payload()
+{
+    if (read_pos < sei_init) return false;
+    if (read_pos > sei_init + sei_size) return false;
+    if (read_pos < sei_init + sei_size) return true;
+    return (bit_pos & 7) != 0;
+}
+
+bool rbsp_stream_t::payload_extension_present()
+{
+    fill_buffer(1);
+    if (bit_pos & 7) {
+        byte_t bits = bit_buf << (bit_pos & 7);
+        return bits != 0x80 || read_pos < sei_init + sei_size;
+    }
+    else {
+        byte_t bits = buffer[read_pos & BUFFER_MASK];
+        return bits != 0x80 || read_pos + 1 < sei_init + sei_size;
+    }
 }
 
 int rbsp_stream_t::read_exp_golomb_prefix()
@@ -224,6 +259,9 @@ const export_record_t<rbsp_stream_t> rbsp_stream_t::export_table[] = {
     { "more_rbsp_trailing_data", rbsp_stream_t::exp_more_rbsp_trailing_data },
     { "more_rbsp_data", rbsp_stream_t::exp_more_rbsp_data },
     { "skip_rbsp_data", rbsp_stream_t::exp_skip_rbsp_data },
+    { "init_sei_payload", rbsp_stream_t::exp_init_sei_payload },
+    { "more_data_in_payload", rbsp_stream_t::exp_more_data_in_payload },
+    { "payload_extension_present", rbsp_stream_t::exp_payload_extension_present },
     { nullptr }
 };
 
@@ -291,6 +329,25 @@ number_t rbsp_stream_t::exp_skip_rbsp_data(rbsp_stream_t *in, int argc, number_t
 {
     if (argc != 0) throw wrong_argc_error{ "skip_rbsp_data", 0, argc };
     return in->skip_rbsp_data();
+}
+
+number_t rbsp_stream_t::exp_init_sei_payload(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
+{
+    if (argc != 2) throw wrong_argc_error{ "init_sei_payload", 2, argc };
+    in->init_sei_payload(argv[1]);
+    return 0;
+}
+
+number_t rbsp_stream_t::exp_more_data_in_payload(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
+{
+    if (argc != 0) throw wrong_argc_error{ "more_data_in_payload", 0, argc };
+    return in->more_data_in_payload();
+}
+
+number_t rbsp_stream_t::exp_payload_extension_present(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
+{
+    if (argc != 0) throw wrong_argc_error{ "payload_extension_present", 0, argc };
+    return in->payload_extension_present();
 }
 
 NAMESPACE_UBSP_END;
