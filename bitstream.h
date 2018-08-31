@@ -29,8 +29,6 @@ private:
     byte_stream_t& input;
     size_t nalu_end_pos = 0;
     int32_t zero_count = 0;
-
-    static number_t exp_next_nalu(nalu_stream_t *in, int argc, number_t argv[MAX_ARGS]);
 };
 
 // simple RBSP bitwise stream with look ahead and support for various coding schemes
@@ -78,22 +76,6 @@ private:
     size_t bit_pos = 0;
     byte_t bit_buf = 0;
     int read_exp_golomb_prefix();
-
-    // export functions:
-    static number_t exp_read_bits(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
-    static number_t exp_next_bits(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
-    static number_t exp_read_unsigned(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
-    static number_t exp_read_signed(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
-    static number_t exp_read_unsigned_exp_golomb(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
-    static number_t exp_read_signed_exp_golomb(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
-    static number_t exp_get_position(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
-    static number_t exp_byte_aligned(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
-    static number_t exp_more_rbsp_trailing_data(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
-    static number_t exp_more_rbsp_data(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
-    static number_t exp_skip_rbsp_data(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
-    static number_t exp_init_sei_payload(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
-    static number_t exp_more_data_in_payload(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
-    static number_t exp_payload_extension_present(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS]);
 
 };
 

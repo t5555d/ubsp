@@ -237,117 +237,45 @@ int64_t rbsp_stream_t::read_signed_exp_golomb()
 //
 
 const export_record_t<nalu_stream_t> nalu_stream_t::export_table[] = {
-    { "next_nalu", nalu_stream_t::exp_next_nalu },
+    EXPORT_METHOD(nalu_stream_t, next_nalu),
     { nullptr }
 };
 
-number_t nalu_stream_t::exp_next_nalu(nalu_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc != 0) throw wrong_argc_error{ "next_nalu", 0, argc };
-    return in->next_nalu();
-}
-
-const export_record_t<rbsp_stream_t> rbsp_stream_t::export_table[] = {
-    { "read_bits", rbsp_stream_t::exp_read_bits },
-    { "next_bits", rbsp_stream_t::exp_next_bits },
-    { "read_unsigned", rbsp_stream_t::exp_read_unsigned },
-    { "read_signed", rbsp_stream_t::exp_read_signed },
-    { "read_unsigned_exp_golomb", rbsp_stream_t::exp_read_unsigned_exp_golomb },
-    { "read_signed_exp_golomb", rbsp_stream_t::exp_read_signed_exp_golomb },
-    { "get_position", rbsp_stream_t::exp_get_position },
-    { "byte_aligned", rbsp_stream_t::exp_byte_aligned },
-    { "more_rbsp_trailing_data", rbsp_stream_t::exp_more_rbsp_trailing_data },
-    { "more_rbsp_data", rbsp_stream_t::exp_more_rbsp_data },
-    { "skip_rbsp_data", rbsp_stream_t::exp_skip_rbsp_data },
-    { "init_sei_payload", rbsp_stream_t::exp_init_sei_payload },
-    { "more_data_in_payload", rbsp_stream_t::exp_more_data_in_payload },
-    { "payload_extension_present", rbsp_stream_t::exp_payload_extension_present },
-    { nullptr }
-};
-
-number_t rbsp_stream_t::exp_read_bits(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc != 1) throw wrong_argc_error{ "read_bits", 1, argc };
-    return in->read_bits((int)argv[0]);
-}
-
-number_t rbsp_stream_t::exp_read_unsigned(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc != 1) throw wrong_argc_error{ "read_unsigned", 1, argc };
-    return in->read_unsigned((int)argv[0]);
-}
-
-number_t rbsp_stream_t::exp_read_signed(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc != 1) throw wrong_argc_error{ "read_signed", 1, argc };
-    return in->read_signed((int)argv[0]);
-}
-
-number_t rbsp_stream_t::exp_read_unsigned_exp_golomb(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
+number_t read_unsigned_exp_golomb(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
 {
     if (argc > 1) throw wrong_argc_error{ "read_unsigned_exp_golomb", 0, argc };
     return in->read_unsigned_exp_golomb();
 }
 
-number_t rbsp_stream_t::exp_read_signed_exp_golomb(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
+number_t read_signed_exp_golomb(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
 {
     if (argc > 1) throw wrong_argc_error{ "read_signed_exp_golomb", 0, argc };
     return in->read_signed_exp_golomb();
 }
 
-number_t rbsp_stream_t::exp_next_bits(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc != 1) throw wrong_argc_error{ "next_bits", 1, argc };
-    return in->next_bits((int)argv[0]);
-}
-
-number_t rbsp_stream_t::exp_get_position(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc != 0) throw wrong_argc_error{ "get_position", 0, argc };
-    return in->get_position();
-}
-
-number_t rbsp_stream_t::exp_byte_aligned(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc != 0) throw wrong_argc_error{ "byte_aligned", 0, argc };
-    return in->byte_aligned();
-}
-
-number_t rbsp_stream_t::exp_more_rbsp_trailing_data(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc != 0) throw wrong_argc_error{ "more_rbsp_trailing_data", 0, argc };
-    return in->more_rbsp_trailing_data();
-}
-
-number_t rbsp_stream_t::exp_more_rbsp_data(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc != 0) throw wrong_argc_error{ "more_rbsp_data", 0, argc };
-    return in->more_rbsp_data();
-}
-
-number_t rbsp_stream_t::exp_skip_rbsp_data(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc != 0) throw wrong_argc_error{ "skip_rbsp_data", 0, argc };
-    return in->skip_rbsp_data();
-}
-
-number_t rbsp_stream_t::exp_init_sei_payload(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
+number_t init_sei_payload(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
 {
     if (argc != 2) throw wrong_argc_error{ "init_sei_payload", 2, argc };
     in->init_sei_payload(argv[1]);
     return 0;
 }
 
-number_t rbsp_stream_t::exp_more_data_in_payload(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc != 0) throw wrong_argc_error{ "more_data_in_payload", 0, argc };
-    return in->more_data_in_payload();
-}
-
-number_t rbsp_stream_t::exp_payload_extension_present(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc != 0) throw wrong_argc_error{ "payload_extension_present", 0, argc };
-    return in->payload_extension_present();
-}
+const export_record_t<rbsp_stream_t> rbsp_stream_t::export_table[] = {
+    EXPORT_METHOD(rbsp_stream_t, read_bits),
+    EXPORT_METHOD(rbsp_stream_t, next_bits),
+    EXPORT_METHOD(rbsp_stream_t, read_unsigned),
+    EXPORT_METHOD(rbsp_stream_t, read_signed),
+    EXPORT_FUNCTION(ubsp, read_unsigned_exp_golomb),
+    EXPORT_FUNCTION(ubsp, read_signed_exp_golomb),
+    EXPORT_METHOD(rbsp_stream_t, get_position),
+    EXPORT_METHOD(rbsp_stream_t, byte_aligned),
+    EXPORT_METHOD(rbsp_stream_t, more_rbsp_trailing_data),
+    EXPORT_METHOD(rbsp_stream_t, more_rbsp_data),
+    EXPORT_METHOD(rbsp_stream_t, skip_rbsp_data),
+    EXPORT_FUNCTION(ubsp, init_sei_payload),
+    EXPORT_METHOD(rbsp_stream_t, more_data_in_payload),
+    EXPORT_METHOD(rbsp_stream_t, payload_extension_present),
+    { nullptr }
+};
 
 NAMESPACE_UBSP_END;

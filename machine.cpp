@@ -146,7 +146,13 @@ number_t machine_t::call(const func_call_t& call)
     // find native method:
     auto native_method = native_methods.find(call.name);
     if (native_method != native_methods.end()) {
-        value = native_method->second.func(native_method->second.context, argc, argv);
+        try {
+            value = native_method->second.func(native_method->second.context, argc, argv);
+        }
+        catch (wrong_argc_error e) {
+            e.func = call.name;
+            throw e;
+        }
     }
 
     // find function:
