@@ -217,9 +217,9 @@ void syntax_output_t::process(const func_defn_t& node)
     output_block(node.body);
 }
 
-void syntax_output_t::process(const func_decl_t& node)
+void syntax_output_t::process(const import_decl_t& node)
 {
-    *this << "extern " << node.name << "() = " << node.object << "." << node.method;
+    *this << "import " << node.name;
 }
 
 

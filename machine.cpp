@@ -383,29 +383,21 @@ void machine_t::process(const func_defn_t& node)
     funcs[node.name] = &node;
 }
 
-void machine_t::process(const func_decl_t& node)
+void machine_t::process(const import_decl_t& node)
 {
-    // find corresponding object:
-    auto obj = native_objects.find(node.object);
+    // find corresponding module:
+    auto obj = native_objects.find(node.name);
     if (obj == native_objects.end())
-        throw undef_object_error{ node.object };
+        throw undef_object_error{ node.name };
 
-    // find corresponding function:
+    // import module functions:
     auto context = obj->second.context;
     auto exports = obj->second.exports;
-    native_func_t<void> func = nullptr;
     
     for (auto rec = exports; rec->name; rec++) {
-        if (0 == strcmp(rec->name, node.method)) {
-            func = rec->func;
-            break;
-        }
+        native_methods.emplace(rec->name, native_method_t{ context, rec->func });
     }
 
-    if (func == nullptr)
-        throw undef_method_error{ node.object, node.method };
-
-    native_methods.emplace(node.name, native_method_t{ context, func });
 }
 
 NAMESPACE_UBSP_END;

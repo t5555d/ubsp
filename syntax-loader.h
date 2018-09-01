@@ -66,14 +66,14 @@ public:
     for_loop_stmt_t *create_for_loop_stmt(stmt_p init, expr_p cond, stmt_p incr, stmt_p body);
 
     func_defn_t     *create_func_defn(name_t name, args_p args, stmt_p body);
-    func_decl_t     *create_func_decl(name_t name, name_t object, name_t method);
+    import_decl_t   *create_import_decl(name_t name);
     stmt_decl_t     *create_stmt_decl(stmt_p stmt);
     infer_decl_t    *create_infer_decl(name_t scope, name_t name, stmt_p stmt);
 
     argument_t      *create_argument(name_t name);
 
     void register_func(name_t name, args_p args, stmt_p body);
-    void register_func(name_t name, name_t object, name_t method);
+    void register_import(name_t name);
     void register_stmt(stmt_p stmt);
     void register_infer(name_t scope, name_t name, stmt_p stmt);
     void register_infer(name_t scope, name_t name, expr_p expr);

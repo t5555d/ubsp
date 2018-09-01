@@ -208,11 +208,9 @@ struct func_defn_t : declaration_i
     PROCESS_IMPL;
 };
 
-struct func_decl_t : declaration_i
+struct import_decl_t : declaration_i
 {
     name_t name;
-    name_t object;
-    name_t method;
     PROCESS_IMPL;
 };
 

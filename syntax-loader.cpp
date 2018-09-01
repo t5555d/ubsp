@@ -189,8 +189,8 @@ int syntax_loader_t::read_token(YYSTYPE *yylval)
                 return CONTINUE;
             if (0 == strcmp(buf, "global"))
                 return GLOBAL;
-            if (0 == strcmp(buf, "extern"))
-                return EXTERN;
+            if (0 == strcmp(buf, "import"))
+                return IMPORT;
             if (0 == strcmp(buf, "infer"))
                 return INFER;
 
@@ -319,7 +319,7 @@ CREATE_NODE_FUNC_3(loop_stmt, cond, body, pre_check);
 CREATE_NODE_FUNC_1(stmt_decl, stmt);
 CREATE_NODE_FUNC_3(infer_decl, scope, name, stmt);
 CREATE_NODE_FUNC_3(func_defn, name, args, body);
-CREATE_NODE_FUNC_3(func_decl, name, object, method);
+CREATE_NODE_FUNC_1(import_decl, name);
 
 CREATE_NODE_FUNC_1(argument, name);
 
@@ -346,9 +346,9 @@ void syntax_loader_t::register_func(name_t name, args_p args, stmt_p body)
     register_decl(decl);
 }
 
-void syntax_loader_t::register_func(name_t name, name_t object, name_t method)
+void syntax_loader_t::register_import(name_t name)
 {
-    auto decl = create_func_decl(name, object, method);
+    auto decl = create_import_decl(name);
     register_decl(decl);
 }
 

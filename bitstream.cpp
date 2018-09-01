@@ -241,38 +241,19 @@ const export_record_t<nalu_stream_t> nalu_stream_t::export_table[] = {
     { nullptr }
 };
 
-number_t read_unsigned_exp_golomb(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc > 1) throw wrong_argc_error{ "read_unsigned_exp_golomb", 0, argc };
-    return in->read_unsigned_exp_golomb();
-}
-
-number_t read_signed_exp_golomb(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc > 1) throw wrong_argc_error{ "read_signed_exp_golomb", 0, argc };
-    return in->read_signed_exp_golomb();
-}
-
-number_t init_sei_payload(rbsp_stream_t *in, int argc, number_t argv[MAX_ARGS])
-{
-    if (argc != 2) throw wrong_argc_error{ "init_sei_payload", 2, argc };
-    in->init_sei_payload(argv[1]);
-    return 0;
-}
-
 const export_record_t<rbsp_stream_t> rbsp_stream_t::export_table[] = {
     EXPORT_METHOD(rbsp_stream_t, read_bits),
     EXPORT_METHOD(rbsp_stream_t, next_bits),
     EXPORT_METHOD(rbsp_stream_t, read_unsigned),
     EXPORT_METHOD(rbsp_stream_t, read_signed),
-    EXPORT_FUNCTION(ubsp, read_unsigned_exp_golomb),
-    EXPORT_FUNCTION(ubsp, read_signed_exp_golomb),
+    EXPORT_METHOD(rbsp_stream_t, read_unsigned_exp_golomb),
+    EXPORT_METHOD(rbsp_stream_t, read_signed_exp_golomb),
     EXPORT_METHOD(rbsp_stream_t, get_position),
     EXPORT_METHOD(rbsp_stream_t, byte_aligned),
     EXPORT_METHOD(rbsp_stream_t, more_rbsp_trailing_data),
     EXPORT_METHOD(rbsp_stream_t, more_rbsp_data),
     EXPORT_METHOD(rbsp_stream_t, skip_rbsp_data),
-    EXPORT_FUNCTION(ubsp, init_sei_payload),
+    EXPORT_METHOD(rbsp_stream_t, init_sei_payload),
     EXPORT_METHOD(rbsp_stream_t, more_data_in_payload),
     EXPORT_METHOD(rbsp_stream_t, payload_extension_present),
     { nullptr }

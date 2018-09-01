@@ -8,3 +8,4 @@ TODO
 - pre-analyze variables: which are local and which are global
 + correct implementation of NALU/RBSP streams
 + support selected SEI messages
+- check that variables are set on all control paths

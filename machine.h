@@ -54,7 +54,7 @@ private:
     };
 
     std::map<std::string, native_object_t> native_objects;
-    std::map<name_t, native_method_t> native_methods;
+    std::map<std::string, native_method_t> native_methods;
 
     typedef std::map<name_t, stmt_p> infer_map_t;
 
@@ -93,7 +93,7 @@ private:
     virtual void process(const root_node_t&) override;
     virtual void process(const stmt_decl_t&) override;
     virtual void process(const func_defn_t&) override;
-    virtual void process(const func_decl_t&) override;
+    virtual void process(const import_decl_t&) override;
     virtual void process(const infer_decl_t&) override;
 };
 
