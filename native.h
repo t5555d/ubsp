@@ -89,7 +89,7 @@ number_t native_func_impl(Context *context, int argc, number_t argv[MAX_ARGS])
 #define EXPORT_FUNCTION(context, function) { #function, context::function }
 #define EXPORT_METHOD(context, method) { #method, native_func_impl<context, decltype(&context::method), &context::method> }
 
-export_record_t<void> native_math[];
+extern export_record_t<void> native_math[];
 
 NAMESPACE_UBSP_END;
 

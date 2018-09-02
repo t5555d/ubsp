@@ -3,12 +3,10 @@
 #include "syntax-loader.h"
 #include "syntax.tab.hpp"
 
-int yyparse(ubsp::syntax_loader_t *);
-
 NAMESPACE_UBSP_BEGIN;
 
-syntax_loader_t::syntax_loader_t(syntax_t& s, const char *filename) :
-    syntax(s), file(nullptr), ungot_char(EOF), line(1), column(1)
+syntax_loader_t::syntax_loader_t(syntax_t& s, const char *filename, decl_p root) :
+    syntax(s), file(nullptr), ungot_char(EOF), line(1), column(1), last(root)
 {
     file = fopen(filename, "r");
     if (file == nullptr) {
@@ -195,8 +193,7 @@ int syntax_loader_t::read_token(YYSTYPE *yylval)
                 return INFER;
 
             // save identifier:
-            auto i = syntax.idents.emplace(buf);
-            yylval->ident = i.first->c_str();
+            yylval->ident = syntax.get_ident(buf);
             return IDENT;
         }
 
@@ -376,8 +373,8 @@ void syntax_loader_t::register_infer(name_t scope, name_t name, stmt_p stmt)
 
 void syntax_loader_t::register_decl(decl_p decl)
 {
-    chain(syntax.last, decl);
-    syntax.last = decl;
+    chain(last, decl);
+    last = decl;
 }
 
 NAMESPACE_UBSP_END;

@@ -12,30 +12,38 @@ int main(int argc, const char *argv[])
     extern int yydebug;
     //yydebug = 1;
 
-    syntax_t syntax;
-    syntax.load(argv[1]);
+    const char *stream_path = argv[1];
 
     std::basic_ifstream<byte_t> byte_stream;
-    byte_stream.open(argv[2], std::ifstream::binary | std::ifstream::in);
+    byte_stream.open(stream_path, std::ifstream::binary | std::ifstream::in);
     if (!byte_stream.good()) {
-        std::cerr << "Failed to open file " << argv[2] << std::endl;
+        std::cerr << "Failed to open file " << stream_path << std::endl;
         return -1;
     }
+
+    const char *module = strrchr(stream_path, '.');
+    if (module == nullptr) {
+        std::cerr << "Can not extract extension from " << stream_path << std::endl;
+        return 2;
+    }
+    module++;
 
     nalu_stream_t nalu_stream(byte_stream);
     rbsp_stream_t rbsp_stream(nalu_stream);
 
-    machine_t machine;
+    syntax_t syntax;
+    machine_t machine(syntax);
     machine.export_native_object("nalu", nalu_stream, nalu_stream_t::export_table);
     machine.export_native_object("rbsp", rbsp_stream, rbsp_stream_t::export_table);
     machine.export_native_object("math", native_math);
 
     try {
-        machine.load(syntax);
+        syntax.find_modules(argv[0]);
+        syntax.load(module);
         machine.execute();
     }
-    catch (undef_method_error e) {
-        std::cerr << "Undefined method: " << e.object << '.' << e.method << std::endl;
+    catch (undef_module_error e) {
+        std::cerr << "Undefined module: " << e.name << std::endl;
     }
     catch (undef_func_error e) {
         std::cerr << "Undefined function: " << e.name << std::endl;

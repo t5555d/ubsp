@@ -14,8 +14,7 @@ class machine_t : private syntax_processor_i
 {
 public:
 
-    machine_t();
-    void load(const syntax_t& syntax);
+    machine_t(syntax_t& syntax);
     void execute();
 
     number_t get(const lvalue_t& lval);
@@ -40,6 +39,8 @@ private:
 
     int eval_args(number_t argv[MAX_ARGS], expr_p expr);
     int eval_args(number_t argv[MAX_ARGS], const func_call_t& call);
+
+    syntax_t& syntax;
 
     struct native_object_t
     {
@@ -109,13 +110,8 @@ struct undef_func_error {
     name_t name;
 };
 
-struct undef_object_error {
+struct undef_module_error {
     name_t name;
-};
-
-struct undef_method_error {
-    name_t object;
-    name_t method;
 };
 
 NAMESPACE_UBSP_END;

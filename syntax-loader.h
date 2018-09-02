@@ -5,6 +5,8 @@
 typedef union YYSTYPE YYSTYPE;
 typedef struct YYLTYPE YYLTYPE;
 
+int yyparse(ubsp::syntax_loader_t *);
+
 NAMESPACE_UBSP_BEGIN;
 
 //
@@ -13,8 +15,15 @@ NAMESPACE_UBSP_BEGIN;
 
 class syntax_loader_t
 {
+public:
+    syntax_loader_t(syntax_t& s, const char *filename, decl_p root);
+    ~syntax_loader_t();
+
+    int parse();
+
 private:
     syntax_t& syntax;
+    decl_p last;
     FILE *file;
     int ungot_char;
     int line, column;
@@ -42,9 +51,7 @@ private:
     void *alloc_buffer();
     void free_buffer(void *address);
 
-public:
-    syntax_loader_t(syntax_t& s, const char *filename);
-    ~syntax_loader_t();
+    friend int ::yyparse(ubsp::syntax_loader_t *);
 
     const_expr_t    *create_const_expr(number_t value);
     lval_expr_t     *create_lval_expr(lvalue_t lval);
@@ -78,8 +85,6 @@ public:
     void register_infer(name_t scope, name_t name, stmt_p stmt);
     void register_infer(name_t scope, name_t name, expr_p expr);
     void register_decl(decl_p stmt);
-
-    int parse();
 
     template<typename T>
     T *chain(T *a, T *b) {

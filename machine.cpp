@@ -14,7 +14,8 @@ struct return_exception { number_t value; };
 
 syntax_output_t debug(std::cerr);
 
-machine_t::machine_t()
+machine_t::machine_t(syntax_t& s): 
+    syntax(s)
 {
     scope = &global_scope;
     scope_infers = nullptr;
@@ -126,13 +127,12 @@ void machine_t::exec(stmt_p stmt)
     }
 }
 
-void machine_t::load(const syntax_t& syntax)
-{
-    syntax.get_tree_root()->process(*this);
-}
-
 void machine_t::execute()
 {
+    // collect declarations
+    syntax.get_tree_root()->process(*this);
+
+    // execute collected global statements
     for (stmt_p stmt : stmts)
         exec(stmt);
 }
@@ -387,8 +387,18 @@ void machine_t::process(const import_decl_t& node)
 {
     // find corresponding module:
     auto obj = native_objects.find(node.name);
-    if (obj == native_objects.end())
-        throw undef_object_error{ node.name };
+    if (obj == native_objects.end()) {
+        try {
+            syntax.load(node);
+
+            // collect declarations
+            node.root.process(*this);
+            return;
+        }
+        catch (const std::exception& ) {
+            throw undef_module_error{ node.name };
+        }
+    }
 
     // import module functions:
     auto context = obj->second.context;

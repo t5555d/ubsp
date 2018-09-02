@@ -211,6 +211,7 @@ struct func_defn_t : declaration_i
 struct import_decl_t : declaration_i
 {
     name_t name;
+    root_node_t root;
     PROCESS_IMPL;
 };
 
@@ -234,25 +235,31 @@ class syntax_t
 private:
     friend class syntax_loader_t;
     std::set<std::string> idents;
+    std::set<name_t> modules;
     root_node_t root;
-    decl_p last;
 
     std::list<node_buffer_t> pool;
     node_buffer_t *first_free;
+    char modules_path[260];
+
+    name_t get_ident(const char *name) {
+        auto i = idents.emplace(name);
+        return i.first->c_str();
+    }
     
 public:
 
     syntax_t();
 
     void load(const char *syntax_file);
+    void load(const import_decl_t& import);
     void process(syntax_processor_i& processor) {
         root.process(processor);
     }
 
     decl_p get_tree_root() const { return &root; }
 
-
-
+    void find_modules(const char *start_path);
 };
 
 
