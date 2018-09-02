@@ -185,7 +185,7 @@ void syntax_output_t::process(const root_node_t& node)
 {
     for (decl_p decl = node.next; decl; decl = decl->next) {
         decl->process(*this);
-        *this << "\n" << std::endl;
+        *this << std::endl;
     }
 }
 

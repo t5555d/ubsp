@@ -12,7 +12,22 @@ int main(int argc, const char *argv[])
     extern int yydebug;
     //yydebug = 1;
 
-    const char *stream_path = argv[1];
+    const char *command = argv[1];
+    if (0 == strcmp(command, "format")) {
+        syntax_t syntax;
+        syntax.find_modules(argv[0]);
+        syntax.load(argv[2]);
+        syntax_output_t output(std::cout);
+        syntax.process(output);
+        return 0;
+    }
+
+    if (0 != strcmp(command, "parse")) {
+        std::cerr << "Unknown command: " << command << std::endl;
+        return -1;
+    }
+
+    const char *stream_path = argv[2];
 
     std::basic_ifstream<byte_t> byte_stream;
     byte_stream.open(stream_path, std::ifstream::binary | std::ifstream::in);
