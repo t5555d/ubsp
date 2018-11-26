@@ -117,14 +117,14 @@ void syntax_analyzer_t::process(const func_defn_t& node)
     process_body(node.body);
 }
 
-void syntax_analyzer_t::process(const infer_decl_t& node)
+void syntax_analyzer_t::process(const infer_defn_t& node)
 {
     if (node.scope) return; // only global-scope infers are analyzed
     auto& info = add_global(node.name);
     if (info.infer)
         throw dup_var_infer_error{ node.name };
 
-    info.infer = node.stmt;
+    info.infer = node.body;
 }
 
 //

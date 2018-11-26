@@ -75,7 +75,7 @@ private:
     func_defn_t     *create_func_defn(name_t name, args_p args, stmt_p body);
     import_decl_t   *create_import_decl(name_t name);
     stmt_decl_t     *create_stmt_decl(stmt_p stmt);
-    infer_decl_t    *create_infer_decl(name_t scope, name_t name, stmt_p stmt);
+    infer_defn_t    *create_infer_defn(name_t scope, name_t name, stmt_p stmt);
 
     argument_t      *create_argument(name_t name);
 

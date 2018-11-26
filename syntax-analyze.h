@@ -37,7 +37,7 @@ private:
     virtual void process(const stmt_decl_t&) override;
     virtual void process(const func_defn_t&) override;
     virtual void process(const import_decl_t&) override;
-    virtual void process(const infer_decl_t&) override;
+    virtual void process(const infer_defn_t&) override;
 
 private:
     syntax_t& syntax;

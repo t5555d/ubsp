@@ -192,11 +192,11 @@ struct stmt_decl_t : declaration_i
     PROCESS_IMPL;
 };
 
-struct infer_decl_t : declaration_i
+struct infer_defn_t : declaration_i
 {
     name_t scope;
     name_t name;
-    stmt_p stmt;
+    stmt_p body;
     PROCESS_IMPL;
 };
 

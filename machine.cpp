@@ -365,16 +365,16 @@ void machine_t::process(const stmt_decl_t& node)
     stmts.push_back(node.stmt);
 }
 
-void machine_t::process(const infer_decl_t& node)
+void machine_t::process(const infer_defn_t& node)
 {
     if (node.scope == nullptr) {
-        global_infers[node.name] = node.stmt;
+        global_infers[node.name] = node.body;
     }
     else {
         auto i = scoped_infers.find(node.scope);
         if (i == scoped_infers.end())
             i = scoped_infers.emplace(node.scope, infer_map_t()).first;
-        i->second[node.name] = node.stmt;
+        i->second[node.name] = node.body;
     }
 }
 

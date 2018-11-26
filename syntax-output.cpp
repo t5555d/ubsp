@@ -195,12 +195,12 @@ void syntax_output_t::process(const stmt_decl_t& node)
     output_block(node.stmt);
 }
 
-void syntax_output_t::process(const infer_decl_t& node)
+void syntax_output_t::process(const infer_defn_t& node)
 {
     *this << "infer ";
     if (node.scope) *this << node.scope << ".";
     *this << node.name << " ";
-    auto expr_stmt = dynamic_cast<const expr_stmt_t *>(node.stmt);
+    auto expr_stmt = dynamic_cast<const expr_stmt_t *>(node.body);
     if (expr_stmt && expr_stmt->next == nullptr) {
         auto chng_expr = dynamic_cast<const chng_expr_t *>(expr_stmt->expr);
         if (chng_expr && chng_expr->lval.name == node.name && chng_expr->lval.index == nullptr) {
@@ -208,7 +208,7 @@ void syntax_output_t::process(const infer_decl_t& node)
             return;
         }
     }
-    output_block(node.stmt);
+    output_block(node.body);
 }
 
 void syntax_output_t::process(const func_defn_t& node)
