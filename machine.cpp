@@ -387,27 +387,21 @@ void machine_t::process(const import_decl_t& node)
 {
     // find corresponding module:
     auto obj = native_objects.find(node.name);
-    if (obj == native_objects.end()) {
-        try {
-            syntax.load(node);
+    if (obj != native_objects.end()) {
+        // import module functions:
+        auto context = obj->second.context;
+        auto exports = obj->second.exports;
 
-            // collect declarations
-            node.root.process(*this);
-            return;
+        for (auto rec = exports; rec->name; rec++) {
+            native_methods.emplace(rec->name, native_method_t{ context, rec->func });
         }
-        catch (const std::exception& ) {
-            throw undef_module_error{ node.name };
-        }
+        return;
     }
 
-    // import module functions:
-    auto context = obj->second.context;
-    auto exports = obj->second.exports;
-    
-    for (auto rec = exports; rec->name; rec++) {
-        native_methods.emplace(rec->name, native_method_t{ context, rec->func });
-    }
+    syntax.load(node);
 
+    // collect declarations
+    node.root.process(*this);
 }
 
 NAMESPACE_UBSP_END;

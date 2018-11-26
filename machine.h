@@ -110,10 +110,6 @@ struct undef_func_error {
     name_t name;
 };
 
-struct undef_module_error {
-    name_t name;
-};
-
 NAMESPACE_UBSP_END;
 
 #endif // _UBSP_MACHINE_

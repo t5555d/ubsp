@@ -227,6 +227,39 @@ union node_buffer_t
 };
 
 //
+// extended information:
+//
+
+struct function_info_t
+{
+    function_info_t() = default;
+    function_info_t(const func_defn_t& func) : 
+        name(func.name), body(func.body)
+    {
+        for (args_p arg = func.args; arg; arg = arg->next)
+            args.push_back(arg->name);
+    }
+
+    name_t name = nullptr;
+    stmt_p body = nullptr;
+    std::list<name_t> args;
+    std::set<name_t> reads;
+    std::set<name_t> loads;
+    std::set<name_t> writes;
+    std::set<name_t> globals;
+};
+
+struct variable_info_t
+{
+    variable_info_t(name_t n = nullptr) : name(n) {}
+
+    const name_t name;
+    stmt_p infer = nullptr;
+    name_t func = nullptr;
+    //int ndims = 0;
+};
+
+//
 // abstract syntax tree:
 //
 
@@ -234,6 +267,8 @@ class syntax_t
 {
 private:
     friend class syntax_loader_t;
+    friend class syntax_analyzer_t;
+
     std::set<std::string> idents;
     std::set<name_t> modules;
     root_node_t root;
@@ -241,6 +276,10 @@ private:
     std::list<node_buffer_t> pool;
     node_buffer_t *first_free;
     char modules_path[260];
+
+    function_info_t global_scope;
+    std::map<name_t, function_info_t> function_info;
+    std::map<name_t, variable_info_t> variable_info;
 
     name_t get_ident(const char *name) {
         auto i = idents.emplace(name);
@@ -253,6 +292,7 @@ public:
 
     void load(const char *syntax_file);
     void load(const import_decl_t& import);
+    void analyze();
     void process(syntax_processor_i& processor) {
         root.process(processor);
     }
@@ -262,6 +302,9 @@ public:
     void find_modules(const char *start_path);
 };
 
+struct undef_module_error {
+    name_t name;
+};
 
 NAMESPACE_UBSP_END;
 

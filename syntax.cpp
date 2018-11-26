@@ -52,9 +52,14 @@ void syntax_t::load(const import_decl_t& import)
     char syntax_file[MAX_PATH];
     sprintf(syntax_file, "%s/%s.cfg", modules_path, import.name);
     if (modules.find(import.name) == modules.end()) {
-        syntax_loader_t runtime(*this, syntax_file, &import.root);
-        modules.insert(import.name);
-        runtime.parse();
+        try {
+            syntax_loader_t runtime(*this, syntax_file, &import.root);
+            modules.insert(import.name);
+            runtime.parse();
+        }
+        catch (const std::system_error&) {
+            throw undef_module_error{ import.name };
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 #include "syntax.h"
 #include "syntax-output.h"
+#include "syntax-analyze.h"
 #include "bitstream.h"
 #include "machine.h"
 #include <iostream>
@@ -19,6 +20,26 @@ int main(int argc, const char *argv[])
         syntax.load(argv[2]);
         syntax_output_t output(std::cout);
         syntax.process(output);
+        return 0;
+    }
+
+    if (0 == strcmp(command, "analyze")) {
+        syntax_t syntax;
+        syntax.find_modules(argv[0]);
+        syntax.load(argv[2]);
+        try {
+            syntax_analyzer_t analyzer(syntax);
+            analyzer.analyze();
+        }
+        catch (dup_var_infer_error e) {
+            std::cerr << "Duplicate infer of variable " << e.var << std::endl;
+        }
+        catch (dup_var_write_error e) {
+            std::cerr << "Duplicate write of global variable " << e.var << ": functions " << e.func1 << ", " << e.func2 << std::endl;
+        }
+        catch (dup_func_defn_error e) {
+            std::cerr << "Duplicate definition of function " << e.func << std::endl;
+        }
         return 0;
     }
 

@@ -45,6 +45,9 @@
     <ClInclude Include="bitstream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="syntax-analyze.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="syntax.cpp">
@@ -75,6 +78,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="native.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="syntax-analyze.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

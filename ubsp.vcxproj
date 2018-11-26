@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="syntax-analyze.h" />
     <ClInclude Include="bitstream.h" />
     <ClInclude Include="machine.h" />
     <ClInclude Include="native.h" />
@@ -164,6 +165,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="native.cpp" />
     <ClCompile Include="operators.cpp" />
+    <ClCompile Include="syntax-analyze.cpp" />
     <ClCompile Include="syntax-loader.cpp" />
     <ClCompile Include="syntax-output.cpp" />
     <ClCompile Include="syntax.cpp" />

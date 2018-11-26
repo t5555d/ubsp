@@ -17,6 +17,10 @@ constexpr size_t MAX_IDENT_LEN = 256;
 class machine_t; // virtual machine
 class syntax_t; // abstract syntax tree
 class syntax_loader_t; // syntax parsing runtime
+class syntax_analyzer_t; // syntax analysis runtime
+
+struct function_info_t;
+struct variable_info_t;
 
 struct syntax_node_i;
 struct declaration_i;
