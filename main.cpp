@@ -76,6 +76,7 @@ int main(int argc, const char *argv[])
     try {
         syntax.find_modules(argv[0]);
         syntax.load(module);
+        syntax.analyze();
         machine.execute();
     }
     catch (undef_module_error e) {
@@ -92,6 +93,15 @@ int main(int argc, const char *argv[])
     }
     catch (wrong_index_error e) {
         std::cerr << "Wrong index on dimension " << e.dim << ": " << e.index << ">= " << e.size << std::endl;
+    }
+    catch (dup_var_infer_error e) {
+        std::cerr << "Duplicate infer of variable " << e.var << std::endl;
+    }
+    catch (dup_var_write_error e) {
+        std::cerr << "Duplicate write of global variable " << e.var << ": functions " << e.func1 << ", " << e.func2 << std::endl;
+    }
+    catch (dup_func_defn_error e) {
+        std::cerr << "Duplicate definition of function " << e.func << std::endl;
     }
     catch (const char *e) {
         std::cerr << "Error: " << e << std::endl;

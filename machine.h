@@ -59,18 +59,16 @@ private:
 
     typedef std::map<name_t, stmt_p> infer_map_t;
 
-    std::map<name_t, const func_defn_t *> funcs;
-    infer_map_t global_infers;
     std::map<name_t, infer_map_t> scoped_infers;
     infer_map_t *scope_infers;
 
     std::list<stmt_p> stmts;
-    var_scope_t global_scope, memory_scope, *scope;
+    var_scope_t global_scope, *func_scope, *infer_scope;
     number_t value;
 
     array_t& find(name_t name);
 
-    number_t call(const func_defn_t& func, int argc, number_t argv[MAX_ARGS]);
+    number_t call(const function_info_t& func, int argc, number_t argv[MAX_ARGS]);
     number_t call(const func_call_t& call);
     number_t eval(expr_p expr, number_t default_value = 0);
     void exec(stmt_p stmt);
@@ -93,7 +91,7 @@ private:
     virtual void process(const load_stmt_t&) override;
     virtual void process(const root_node_t&) override;
     virtual void process(const stmt_decl_t&) override;
-    virtual void process(const func_defn_t&) override;
+    virtual void process(const func_defn_t&) override {}
     virtual void process(const import_decl_t&) override;
     virtual void process(const infer_defn_t&) override;
 };

@@ -62,17 +62,9 @@ void syntax_analyzer_t::analyze()
     }
     
 
-    std::cout << "global scope:" << std::endl;
-    for (name_t var : syntax.global_scope.writes) {
-        std::cout << "    " << var << std::endl;
-    }
-    for (auto& value : functions) {
-        function_info_t& func = value.second;
-
-        std::cout << "------------------------------------\nfunction " << func.name << std::endl;
-        for (name_t var : func.globals) {
-            std::cout << "    " << var << std::endl;
-        }
+    for (auto& value : variables) {
+        variable_info_t& var = value.second;
+        std::cout << var.name << ": " << (var.func ? var.func : "(global)") << std::endl;
     }
 }
 
@@ -119,7 +111,7 @@ void syntax_analyzer_t::process(const func_defn_t& node)
 
 void syntax_analyzer_t::process(const infer_defn_t& node)
 {
-    if (node.scope) return; // only global-scope infers are analyzed
+    if (node.scope) return; // only global-func_scope infers are analyzed
     auto& info = add_global(node.name);
     if (info.infer)
         throw dup_var_infer_error{ node.name };

@@ -268,6 +268,24 @@ struct variable_info_t
 
 class syntax_t
 {
+public:
+
+    syntax_t();
+
+    void load(const char *syntax_file);
+    void load(const import_decl_t& import);
+    void analyze();
+    void process(decl_processor_i& processor) {
+        root.process(processor);
+    }
+
+    decl_p get_tree_root() const { return &root; }
+
+    void find_modules(const char *start_path);
+
+    const function_info_t *get_function(name_t name) const;
+    const variable_info_t *get_variable(name_t name) const;
+
 private:
     friend class syntax_loader_t;
     friend class syntax_analyzer_t;
@@ -289,20 +307,6 @@ private:
         return i.first->c_str();
     }
     
-public:
-
-    syntax_t();
-
-    void load(const char *syntax_file);
-    void load(const import_decl_t& import);
-    void analyze();
-    void process(decl_processor_i& processor) {
-        root.process(processor);
-    }
-
-    decl_p get_tree_root() const { return &root; }
-
-    void find_modules(const char *start_path);
 };
 
 struct undef_module_error {

@@ -17,7 +17,7 @@ syntax_output_t debug(std::cerr);
 machine_t::machine_t(syntax_t& s): 
     syntax(s)
 {
-    scope = &global_scope;
+    func_scope = &global_scope;
     scope_infers = nullptr;
 }
 
@@ -44,34 +44,32 @@ int machine_t::eval_args(number_t argv[MAX_ARGS], const func_call_t& call)
 
 array_t& machine_t::find(name_t name)
 {
-    auto var = scope->find(name);
-    if (var != scope->end())
-        return var->second;
-
-    var = global_scope.find(name);
-    if (var != global_scope.end())
-        return var->second;
-
-    var = memory_scope.find(name);
-    if (var != memory_scope.end()) {
-        auto inserted = global_scope.emplace(name, std::move(var->second));
-        memory_scope.erase(var);
-        return inserted.first->second;
+    if (infer_scope) {
+        auto it = infer_scope->find(name);
+        if (it != infer_scope->end())
+            return it->second;
     }
 
-    auto infer = global_infers.find(name);
-    if (infer != global_infers.end()) {
-        var_scope_t infer_scope;
-        {
-            auto prev_scope = remember(scope);
-            scope = &infer_scope;
-            exec(infer->second);
-        }
-        auto var = infer_scope.find(name);
-        if (var == infer_scope.end())
+    auto it = func_scope->find(name);
+    if (it != func_scope->end())
+        return it->second;
+
+    it = global_scope.find(name);
+    if (it != global_scope.end())
+        return it->second;
+
+    auto global = syntax.get_variable(name);
+
+    if (global && global->infer) {
+        var_scope_t scope;
+        auto prev_scope = remember(infer_scope);
+        infer_scope = &scope;
+        exec(global->infer);
+
+        it = global_scope.find(name);
+        if (it == global_scope.end())
             throw infer_var_error{ name };
-        auto inserted = scope->emplace(name, std::move(var->second));
-        return inserted.first->second;
+        return it->second;
     }
 
     throw undef_var_error{ name };
@@ -101,12 +99,16 @@ void machine_t::put(const lvalue_t& lval, number_t n)
     number_t index[MAX_ARGS];
     int ndims = eval_args(index, lval.index);
 
-    auto var = scope->find(lval.name);
-    if (var == scope->end()) {
-        scope->emplace(lval.name, array_t(ndims, index, n));
+    auto global = syntax.get_variable(lval.name);
+    auto& scope = global ? global_scope : 
+        infer_scope ? *infer_scope : *func_scope;
+
+    auto it = scope.find(lval.name);
+    if (it == scope.end()) {
+        scope.emplace(lval.name, array_t(ndims, index, n));
     }
     else {
-        var->second.put(ndims, index, n);
+        it->second.put(ndims, index, n);
     }
 }
 
@@ -156,39 +158,37 @@ number_t machine_t::call(const func_call_t& call)
     }
 
     // find function:
-    auto user_defined_func = funcs.find(call.name);
-    if (user_defined_func != funcs.end()) {
-        return this->call(*user_defined_func->second, argc, argv);
+    auto user_defined_func = syntax.get_function(call.name);
+    if (user_defined_func) {
+        return this->call(*user_defined_func, argc, argv);
     }
- 
+
     if (native_method != native_methods.end())
         return value;
 
     throw undef_func_error{ call.name };
 }
 
-number_t machine_t::call(const func_defn_t& func, int argc, number_t argv[MAX_ARGS])
+number_t machine_t::call(const function_info_t& func, int argc, number_t argv[MAX_ARGS])
 {
     debug << func.name << "()" << std::endl;
 
     // check args:
-    int required_argc = 0;
-    for (args_p arg = func.args; arg; arg = arg->next)
-        required_argc++;
+    int required_argc = (int) func.args.size();
     if (argc != required_argc) {
         std::cerr << "Wrong number of arguments at func '" << func.name << "': " 
             << required_argc << " required, " << argc << " provided" << std::endl;
         throw wrong_argc_error{ func.name, required_argc, argc };
     }
 
-    // fill local scope:
+    // fill local func_scope:
     var_scope_t local_scope;
-    for (args_p arg = func.args; arg; arg = arg->next)
-        local_scope.emplace(arg->name, *argv++);
+    for (name_t arg : func.args)
+        local_scope.emplace(arg, *argv++);
 
     try {
-        auto unwind = remember(scope);
-        scope = &local_scope;
+        auto unwind = remember(func_scope);
+        func_scope = &local_scope;
         exec(func.body);
         value = 0; // default return value
     }
@@ -200,15 +200,6 @@ number_t machine_t::call(const func_defn_t& func, int argc, number_t argv[MAX_AR
     }
     catch (return_exception r) {
         value = r.value;
-    }
-
-    // remember local variables so they can be referenced further:
-    for (auto& pair : local_scope) {
-        auto var = global_scope.find(pair.first);
-        if (var == global_scope.end())
-            memory_scope.emplace(pair.first, std::move(pair.second));
-        else
-            var->second = std::move(pair.second);
     }
 
     return value;
@@ -367,20 +358,12 @@ void machine_t::process(const stmt_decl_t& node)
 
 void machine_t::process(const infer_defn_t& node)
 {
-    if (node.scope == nullptr) {
-        global_infers[node.name] = node.body;
-    }
-    else {
+    if (node.scope != nullptr) {
         auto i = scoped_infers.find(node.scope);
         if (i == scoped_infers.end())
             i = scoped_infers.emplace(node.scope, infer_map_t()).first;
         i->second[node.name] = node.body;
     }
-}
-
-void machine_t::process(const func_defn_t& node)
-{
-    funcs[node.name] = &node;
 }
 
 void machine_t::process(const import_decl_t& node)

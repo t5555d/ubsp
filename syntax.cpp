@@ -63,4 +63,16 @@ void syntax_t::load(const import_decl_t& import)
     }
 }
 
+const function_info_t *syntax_t::get_function(name_t name) const
+{
+    auto it = function_info.find(name);
+    return it != function_info.end() ? &it->second : nullptr;
+}
+
+const variable_info_t *syntax_t::get_variable(name_t name) const
+{
+    auto it = variable_info.find(name);
+    return it != variable_info.end() ? &it->second : nullptr;
+}
+
 NAMESPACE_UBSP_END;
