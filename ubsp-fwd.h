@@ -60,7 +60,7 @@ typedef const statement_i *stmt_p;
 typedef const expression_i *expr_p;
 typedef const argument_t *args_p;
 
-struct syntax_processor_i
+struct expr_processor_i
 {
     virtual void process(const const_expr_t&) = 0;
     virtual void process(const lval_expr_t&) = 0;
@@ -70,7 +70,10 @@ struct syntax_processor_i
     virtual void process(const binary_oper_t&) = 0;
     virtual void process(const cond_expr_t&) = 0;
     virtual void process(const call_expr_t&) = 0;
+};
 
+struct stmt_processor_i : expr_processor_i
+{
     virtual void process(const break_stmt_t&) = 0;
     virtual void process(const continue_stmt_t&) = 0;
     virtual void process(const return_stmt_t&) = 0;
@@ -79,7 +82,10 @@ struct syntax_processor_i
     virtual void process(const loop_stmt_t&) = 0;
     virtual void process(const for_loop_stmt_t&) = 0;
     virtual void process(const load_stmt_t&) = 0;
+};
 
+struct decl_processor_i : stmt_processor_i
+{
     virtual void process(const root_node_t&) = 0;
     virtual void process(const stmt_decl_t&) = 0;
     virtual void process(const func_defn_t&) = 0;

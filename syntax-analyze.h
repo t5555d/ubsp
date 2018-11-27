@@ -8,7 +8,7 @@
 
 NAMESPACE_UBSP_BEGIN;
 
-class syntax_analyzer_t : private syntax_processor_i
+class syntax_analyzer_t : private decl_processor_i
 {
 public:
     syntax_analyzer_t(syntax_t& s);

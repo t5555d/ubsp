@@ -10,7 +10,7 @@
 
 NAMESPACE_UBSP_BEGIN;
 
-class machine_t : private syntax_processor_i
+class machine_t : private decl_processor_i
 {
 public:
 

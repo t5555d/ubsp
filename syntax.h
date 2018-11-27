@@ -14,29 +14,32 @@ NAMESPACE_UBSP_BEGIN;
 struct syntax_node_i
 {
     virtual ~syntax_node_i() {}
-    virtual void process(syntax_processor_i&) const = 0;
 };
-
-#define PROCESS_IMPL virtual void process(syntax_processor_i& p) const override { p.process(*this); }
 
 // abstract declaration node:
 struct declaration_i : syntax_node_i {
     mutable decl_p next = nullptr; // linked list of definitions
+    virtual void process(decl_processor_i&) const = 0;
 };
 
 // abstract statement
 struct statement_i : syntax_node_i {
     mutable stmt_p next = nullptr; // linked list of statements
+    virtual void process(stmt_processor_i&) const = 0;
 };
 
 // abstract expression node
 struct expression_i : syntax_node_i {
     mutable expr_p next = nullptr; // linked list of expressions
     virtual expr_priority_t get_priority() const = 0;
+    virtual void process(expr_processor_i&) const = 0;
 };
 
+#define PROCESS_DECL virtual void process(decl_processor_i& p) const override { p.process(*this); }
+#define PROCESS_STMT virtual void process(stmt_processor_i& p) const override { p.process(*this); }
+
 #define EXPR_IMPL(prio) \
-    PROCESS_IMPL; \
+    virtual void process(expr_processor_i& p) const override { p.process(*this); } \
     virtual expr_priority_t get_priority() const override { return prio; }
 
 struct argument_t
@@ -125,24 +128,24 @@ struct call_expr_t : expression_i
 
 struct break_stmt_t : statement_i
 {
-    PROCESS_IMPL;
+    PROCESS_STMT;
 };
 
 struct continue_stmt_t : statement_i
 {
-    PROCESS_IMPL;
+    PROCESS_STMT;
 };
 
 struct return_stmt_t : statement_i
 {
     expr_p value;
-    PROCESS_IMPL;
+    PROCESS_STMT;
 };
 
 struct expr_stmt_t : statement_i
 {
     expr_p expr;
-    PROCESS_IMPL;
+    PROCESS_STMT;
 };
 
 struct cond_stmt_t : statement_i
@@ -150,7 +153,7 @@ struct cond_stmt_t : statement_i
     expr_p cond;
     stmt_p stmt_true;
     stmt_p stmt_false;
-    PROCESS_IMPL;
+    PROCESS_STMT;
 };
 
 struct loop_stmt_t : statement_i
@@ -158,7 +161,7 @@ struct loop_stmt_t : statement_i
     expr_p cond;
     stmt_p body;
     bool pre_check;
-    PROCESS_IMPL;
+    PROCESS_STMT;
 };
 
 struct for_loop_stmt_t : statement_i
@@ -167,14 +170,14 @@ struct for_loop_stmt_t : statement_i
     expr_p cond;
     stmt_p incr;
     stmt_p body;
-    PROCESS_IMPL;
+    PROCESS_STMT;
 };
 
 struct load_stmt_t : statement_i
 {
     lvalue_t lval;
     func_call_t call;
-    PROCESS_IMPL;
+    PROCESS_STMT;
 };
 
 //
@@ -183,13 +186,13 @@ struct load_stmt_t : statement_i
 
 struct root_node_t : declaration_i
 {
-    PROCESS_IMPL;
+    PROCESS_DECL;
 };
 
 struct stmt_decl_t : declaration_i
 {
     stmt_p stmt;
-    PROCESS_IMPL;
+    PROCESS_DECL;
 };
 
 struct infer_defn_t : declaration_i
@@ -197,7 +200,7 @@ struct infer_defn_t : declaration_i
     name_t scope;
     name_t name;
     stmt_p body;
-    PROCESS_IMPL;
+    PROCESS_DECL;
 };
 
 struct func_defn_t : declaration_i
@@ -205,14 +208,14 @@ struct func_defn_t : declaration_i
     name_t name;
     args_p args;
     stmt_p body;
-    PROCESS_IMPL;
+    PROCESS_DECL;
 };
 
 struct import_decl_t : declaration_i
 {
     name_t name;
     root_node_t root;
-    PROCESS_IMPL;
+    PROCESS_DECL;
 };
 
 // memory management:
@@ -293,7 +296,7 @@ public:
     void load(const char *syntax_file);
     void load(const import_decl_t& import);
     void analyze();
-    void process(syntax_processor_i& processor) {
+    void process(decl_processor_i& processor) {
         root.process(processor);
     }
 

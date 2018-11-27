@@ -7,7 +7,7 @@
 
 NAMESPACE_UBSP_BEGIN;
 
-class syntax_output_t : public syntax_processor_i
+class syntax_output_t : public decl_processor_i
 {
 public:
     syntax_output_t(std::ostream& o) : out(o) {}
