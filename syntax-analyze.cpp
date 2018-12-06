@@ -92,6 +92,8 @@ void syntax_analyzer_t::process(const import_decl_t& node)
 
 void syntax_analyzer_t::process(const stmt_decl_t& node)
 {
+    syntax.global_body.push_back(node.stmt);
+
     auto prev = remember(func);
     func = &syntax.global_scope;
     process_body(node.stmt);
@@ -111,7 +113,15 @@ void syntax_analyzer_t::process(const func_defn_t& node)
 
 void syntax_analyzer_t::process(const infer_defn_t& node)
 {
-    if (node.scope) return; // only global-func_scope infers are analyzed
+    if (node.scope != nullptr) {
+        auto& m = syntax.scoped_infers;
+        auto i = m.find(node.scope);
+        if (i == m.end())
+            i = m.emplace(node.scope, infer_map_t()).first;
+        i->second[node.name] = node.body;
+        return;
+    }
+
     auto& info = add_global(node.name);
     if (info.infer)
         throw dup_var_infer_error{ node.name };

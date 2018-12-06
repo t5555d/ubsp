@@ -36,8 +36,8 @@ int machine_t::eval_args(number_t argv[MAX_ARGS], expr_p expr)
 int machine_t::eval_args(number_t argv[MAX_ARGS], const func_call_t& call)
 {
     auto unwind = remember(scope_infers);
-    auto i = scoped_infers.find(call.name);
-    if (i != scoped_infers.end())
+    auto i = syntax.scoped_infers.find(call.name);
+    if (i != syntax.scoped_infers.end())
         scope_infers = &i->second;
     return eval_args(argv, call.args);
 }
@@ -135,7 +135,7 @@ void machine_t::execute()
     syntax.get_tree_root()->process(*this);
 
     // execute collected global statements
-    for (stmt_p stmt : stmts)
+    for (stmt_p stmt : syntax.global_body)
         exec(stmt);
 }
 
@@ -333,8 +333,8 @@ void machine_t::process(const for_loop_stmt_t& node)
 void machine_t::process(const load_stmt_t& node)
 {
     auto rollback = remember(scope_infers);
-    auto i = scoped_infers.find(node.lval.name);
-    if (i != scoped_infers.end())
+    auto i = syntax.scoped_infers.find(node.lval.name);
+    if (i != syntax.scoped_infers.end())
         scope_infers = &i->second;
     number_t value = call(node.call);
     debug << "    " << node.lval << " = " << value << std::endl;
@@ -349,21 +349,6 @@ void machine_t::process(const root_node_t& node)
 {
     for (decl_p decl = node.next; decl; decl = decl->next)
         decl->process(*this);
-}
-
-void machine_t::process(const stmt_decl_t& node)
-{
-    stmts.push_back(node.stmt);
-}
-
-void machine_t::process(const infer_defn_t& node)
-{
-    if (node.scope != nullptr) {
-        auto i = scoped_infers.find(node.scope);
-        if (i == scoped_infers.end())
-            i = scoped_infers.emplace(node.scope, infer_map_t()).first;
-        i->second[node.name] = node.body;
-    }
 }
 
 void machine_t::process(const import_decl_t& node)

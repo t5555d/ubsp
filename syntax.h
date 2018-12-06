@@ -262,6 +262,8 @@ struct variable_info_t
     //int ndims = 0;
 };
 
+typedef std::map<name_t, stmt_p> infer_map_t;
+
 //
 // abstract syntax tree:
 //
@@ -289,6 +291,7 @@ public:
 private:
     friend class syntax_loader_t;
     friend class syntax_analyzer_t;
+    friend class machine_t;
 
     std::set<std::string> idents;
     std::set<name_t> modules;
@@ -298,9 +301,11 @@ private:
     node_buffer_t *first_free;
     char modules_path[260];
 
+    std::list<stmt_p> global_body;
     function_info_t global_scope;
     std::map<name_t, function_info_t> function_info;
     std::map<name_t, variable_info_t> variable_info;
+    std::map<name_t, infer_map_t> scoped_infers;
 
     name_t get_ident(const char *name) {
         auto i = idents.emplace(name);

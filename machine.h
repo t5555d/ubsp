@@ -36,6 +36,7 @@ public:
 
 private:
     typedef std::map<name_t, array_t> var_scope_t;
+    typedef std::map<name_t, stmt_p> infer_map_t;
 
     int eval_args(number_t argv[MAX_ARGS], expr_p expr);
     int eval_args(number_t argv[MAX_ARGS], const func_call_t& call);
@@ -57,12 +58,8 @@ private:
     std::map<std::string, native_object_t> native_objects;
     std::map<std::string, native_method_t> native_methods;
 
-    typedef std::map<name_t, stmt_p> infer_map_t;
-
-    std::map<name_t, infer_map_t> scoped_infers;
     infer_map_t *scope_infers;
 
-    std::list<stmt_p> stmts;
     var_scope_t global_scope, *func_scope, *infer_scope;
     number_t value;
 
@@ -90,10 +87,10 @@ private:
     virtual void process(const for_loop_stmt_t&) override;
     virtual void process(const load_stmt_t&) override;
     virtual void process(const root_node_t&) override;
-    virtual void process(const stmt_decl_t&) override;
+    virtual void process(const stmt_decl_t&) override {}
     virtual void process(const func_defn_t&) override {}
     virtual void process(const import_decl_t&) override;
-    virtual void process(const infer_defn_t&) override;
+    virtual void process(const infer_defn_t&) override {}
 };
 
 struct undef_var_error {
