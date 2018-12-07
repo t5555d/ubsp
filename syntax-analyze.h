@@ -14,6 +14,7 @@ public:
     syntax_analyzer_t(syntax_t& s);
 
     void analyze();
+    void print_variables(std::ostream& out);
 
 private:
     virtual void process(const const_expr_t&) override {}

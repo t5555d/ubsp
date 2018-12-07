@@ -60,11 +60,13 @@ void syntax_analyzer_t::analyze()
             func.globals.insert(var);
         }
     }
-    
+}
 
+void syntax_analyzer_t::print_variables(std::ostream& out)
+{
     for (auto& value : variables) {
         variable_info_t& var = value.second;
-        std::cout << var.name << ": " << (var.func ? var.func : "(global)") << std::endl;
+        out << var.name << ": " << (var.func ? var.func : "(global)") << std::endl;
     }
 }
 

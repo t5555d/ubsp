@@ -14,7 +14,7 @@ class machine_t : private stmt_processor_i
 {
 public:
 
-    machine_t(syntax_t& syntax);
+    machine_t(const syntax_t& syntax);
     void execute();
 
     number_t get(const lvalue_t& lval);
@@ -41,7 +41,7 @@ private:
     int eval_args(number_t argv[MAX_ARGS], expr_p expr);
     int eval_args(number_t argv[MAX_ARGS], const func_call_t& call);
 
-    syntax_t& syntax;
+    const syntax_t& syntax;
 
     struct native_object_t
     {
@@ -58,7 +58,7 @@ private:
     std::map<std::string, native_object_t> native_modules;
     std::map<std::string, native_method_t> native_methods;
 
-    infer_map_t *scope_infers;
+    const infer_map_t *scope_infers;
 
     var_scope_t global_scope, *func_scope, *infer_scope;
     number_t value;

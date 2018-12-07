@@ -14,7 +14,7 @@ struct return_exception { number_t value; };
 
 syntax_output_t debug(std::cerr);
 
-machine_t::machine_t(syntax_t& s): 
+machine_t::machine_t(const syntax_t& s):
     syntax(s)
 {
     func_scope = &global_scope;

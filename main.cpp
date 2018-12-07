@@ -30,6 +30,7 @@ int main(int argc, const char *argv[])
         try {
             syntax_analyzer_t analyzer(syntax);
             analyzer.analyze();
+            analyzer.print_variables(std::cout);
         }
         catch (dup_var_infer_error e) {
             std::cerr << "Duplicate infer of variable " << e.var << std::endl;
