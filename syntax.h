@@ -275,7 +275,6 @@ public:
     syntax_t();
 
     void load(const char *syntax_file);
-    void load(const import_decl_t& import);
     void analyze();
     void process(decl_processor_i& processor) {
         root.process(processor);

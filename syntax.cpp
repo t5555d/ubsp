@@ -37,30 +37,19 @@ void syntax_t::find_modules(const char *start_path)
 
 void syntax_t::load(const char *module)
 {
-    char syntax_file[MAX_PATH];
-    sprintf(syntax_file, "%s/%s.cfg", modules_path, module);
-    syntax_loader_t runtime(*this, syntax_file, &root);
     name_t module_id = get_ident(module);
-    if (modules.find(module_id) == modules.end()) {
-        modules.insert(module_id);
-        runtime.parse();
-    }
-}
+    if (modules.find(module_id) != modules.end())
+        return;
 
-void syntax_t::load(const import_decl_t& import)
-{
-    char syntax_file[MAX_PATH];
-    sprintf(syntax_file, "%s/%s.cfg", modules_path, import.name);
-    if (modules.find(import.name) == modules.end()) {
-        try {
-            syntax_loader_t runtime(*this, syntax_file, &import.root);
-            modules.insert(import.name);
-            runtime.parse();
-        }
-        catch (const std::system_error&) {
-            throw undef_module_error{ import.name };
-        }
-    }
+    char syntax_path[MAX_PATH];
+    sprintf(syntax_path, "%s/%s.cfg", modules_path, module);
+    FILE *file = fopen(syntax_path, "r");
+    if (file == nullptr)
+        throw undef_module_error{ module_id };
+
+    syntax_loader_t runtime(*this, file, &root);
+    modules.insert(module_id);
+    runtime.parse();
 }
 
 const function_info_t *syntax_t::get_function(name_t name) const

@@ -82,7 +82,7 @@ void syntax_analyzer_t::process(const root_node_t& root)
 void syntax_analyzer_t::process(const import_decl_t& node)
 {
     try {
-        syntax.load(node);
+        syntax.load(node.name);
         process(node.root);
     }
     catch (undef_module_error) {

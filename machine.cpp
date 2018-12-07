@@ -366,7 +366,7 @@ void machine_t::process(const import_decl_t& node)
         return;
     }
 
-    syntax.load(node);
+    syntax.load(node.name);
 
     // collect declarations
     node.root.process(*this);

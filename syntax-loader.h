@@ -16,7 +16,7 @@ NAMESPACE_UBSP_BEGIN;
 class syntax_loader_t
 {
 public:
-    syntax_loader_t(syntax_t& s, const char *filename, decl_p root);
+    syntax_loader_t(syntax_t& s, FILE *f, decl_p root);
     ~syntax_loader_t();
 
     int parse();

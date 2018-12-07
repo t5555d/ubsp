@@ -5,14 +5,9 @@
 
 NAMESPACE_UBSP_BEGIN;
 
-syntax_loader_t::syntax_loader_t(syntax_t& s, const char *filename, decl_p root) :
-    syntax(s), file(nullptr), ungot_char(EOF), line(1), column(1), last(root)
+syntax_loader_t::syntax_loader_t(syntax_t& s, FILE *f, decl_p root) :
+    syntax(s), file(f), ungot_char(EOF), line(1), column(1), last(root)
 {
-    file = fopen(filename, "r");
-    if (file == nullptr) {
-        int code = errno;
-        throw std::system_error(code, std::generic_category());
-    }
 }
 
 syntax_loader_t::~syntax_loader_t()
