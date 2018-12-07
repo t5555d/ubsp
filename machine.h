@@ -18,7 +18,7 @@ public:
     void execute();
 
     number_t get(const lvalue_t& lval);
-    void put(const lvalue_t& lval, number_t n);
+    void put(const lvalue_t& lval, number_t n, bool load = false);
 
     template<typename T>
     void export_native_module(const char *name, T *context, const export_record_t<T> *exports) {
@@ -35,8 +35,25 @@ public:
     }
 
 private:
-    typedef std::map<name_t, array_t> var_scope_t;
     typedef std::map<name_t, stmt_p> infer_map_t;
+
+    struct scope_t
+    {
+        scope_t() = default;
+        scope_t(name_t n, const scope_t *p):
+            name(n), prev(p), indent(p->indent + 1) {}
+        ~scope_t() { print_close(); }
+
+        name_t name = "stream";
+        const scope_t *prev = nullptr;
+        std::map<name_t, array_t> vars;
+        mutable bool output = false;
+        int indent = 0;
+
+        array_t *find(name_t);
+        void print_open() const;
+        void print_close() const;
+    };
 
     int eval_args(number_t argv[MAX_ARGS], expr_p expr);
     int eval_args(number_t argv[MAX_ARGS], const func_call_t& call);
@@ -60,7 +77,7 @@ private:
 
     const infer_map_t *scope_infers;
 
-    var_scope_t global_scope, *func_scope, *infer_scope;
+    scope_t global_scope, *func_scope, *infer_scope;
     number_t value;
 
     array_t& find(name_t name);
