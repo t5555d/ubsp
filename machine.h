@@ -10,7 +10,7 @@
 
 NAMESPACE_UBSP_BEGIN;
 
-class machine_t : private decl_processor_i
+class machine_t : private stmt_processor_i
 {
 public:
 
@@ -21,17 +21,17 @@ public:
     void put(const lvalue_t& lval, number_t n);
 
     template<typename T>
-    void export_native_object(const char *name, T *context, const export_record_t<T> *exports) {
-        native_objects.emplace(name, native_object_t{ context, (const export_record_t<void> *) exports });
+    void export_native_module(const char *name, T *context, const export_record_t<T> *exports) {
+        native_modules.emplace(name, native_object_t{ context, (const export_record_t<void> *) exports });
     }
 
     template<typename T>
-    void export_native_object(const char *name, T& context, const export_record_t<T> *exports) {
-        native_objects.emplace(name, native_object_t{ &context, (const export_record_t<void> *) exports });
+    void export_native_module(const char *name, T& context, const export_record_t<T> *exports) {
+        native_modules.emplace(name, native_object_t{ &context, (const export_record_t<void> *) exports });
     }
 
-    void export_native_object(const char *name, const export_record_t<void> *exports) {
-        native_objects.emplace(name, native_object_t{ nullptr, exports });
+    void export_native_module(const char *name, const export_record_t<void> *exports) {
+        native_modules.emplace(name, native_object_t{ nullptr, exports });
     }
 
 private:
@@ -55,7 +55,7 @@ private:
         native_func_t<void> func;
     };
 
-    std::map<std::string, native_object_t> native_objects;
+    std::map<std::string, native_object_t> native_modules;
     std::map<std::string, native_method_t> native_methods;
 
     infer_map_t *scope_infers;
@@ -86,11 +86,6 @@ private:
     virtual void process(const loop_stmt_t&) override;
     virtual void process(const for_loop_stmt_t&) override;
     virtual void process(const load_stmt_t&) override;
-    virtual void process(const root_node_t&) override;
-    virtual void process(const stmt_decl_t&) override {}
-    virtual void process(const func_defn_t&) override {}
-    virtual void process(const import_decl_t&) override;
-    virtual void process(const infer_defn_t&) override {}
 };
 
 struct undef_var_error {

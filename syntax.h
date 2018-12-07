@@ -293,7 +293,8 @@ private:
     friend class machine_t;
 
     std::set<std::string> idents;
-    std::set<name_t> modules;
+    std::set<name_t> loaded_modules;
+    std::set<name_t> missing_modules;
     root_node_t root;
 
     std::list<node_buffer_t> pool;

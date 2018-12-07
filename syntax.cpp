@@ -38,7 +38,7 @@ void syntax_t::find_modules(const char *start_path)
 void syntax_t::load(const char *module)
 {
     name_t module_id = get_ident(module);
-    if (modules.find(module_id) != modules.end())
+    if (loaded_modules.find(module_id) != loaded_modules.end())
         return;
 
     char syntax_path[MAX_PATH];
@@ -48,7 +48,7 @@ void syntax_t::load(const char *module)
         throw undef_module_error{ module_id };
 
     syntax_loader_t runtime(*this, file, &root);
-    modules.insert(module_id);
+    loaded_modules.insert(module_id);
     runtime.parse();
 }
 

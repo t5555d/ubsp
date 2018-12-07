@@ -69,9 +69,9 @@ int main(int argc, const char *argv[])
 
     syntax_t syntax;
     machine_t machine(syntax);
-    machine.export_native_object("nalu", nalu_stream, nalu_stream_t::export_table);
-    machine.export_native_object("rbsp", rbsp_stream, rbsp_stream_t::export_table);
-    machine.export_native_object("math", native_math);
+    machine.export_native_module("nalu", nalu_stream, nalu_stream_t::export_table);
+    machine.export_native_module("rbsp", rbsp_stream, rbsp_stream_t::export_table);
+    machine.export_native_module("math", native_math);
 
     try {
         syntax.find_modules(argv[0]);

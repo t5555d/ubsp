@@ -131,10 +131,22 @@ void machine_t::exec(stmt_p stmt)
 
 void machine_t::execute()
 {
-    // collect declarations
-    syntax.get_tree_root()->process(*this);
+    // import native modules
+    for (name_t module : syntax.missing_modules) {
+        auto obj = native_modules.find(module);
+        if (obj == native_modules.end())
+            throw undef_module_error{ module };
 
-    // execute collected global statements
+        // import module functions:
+        auto context = obj->second.context;
+        auto exports = obj->second.exports;
+
+        for (auto rec = exports; rec->name; rec++) {
+            native_methods.emplace(rec->name, native_method_t{ context, rec->func });
+        }
+    }
+
+    // execute global statements
     for (stmt_p stmt : syntax.global_body)
         exec(stmt);
 }
@@ -339,37 +351,6 @@ void machine_t::process(const load_stmt_t& node)
     number_t value = call(node.call);
     debug << "    " << node.lval << " = " << value << std::endl;
     put(node.lval, value);
-}
-
-//
-// declarations
-//
-
-void machine_t::process(const root_node_t& node)
-{
-    for (decl_p decl = node.next; decl; decl = decl->next)
-        decl->process(*this);
-}
-
-void machine_t::process(const import_decl_t& node)
-{
-    // find corresponding module:
-    auto obj = native_objects.find(node.name);
-    if (obj != native_objects.end()) {
-        // import module functions:
-        auto context = obj->second.context;
-        auto exports = obj->second.exports;
-
-        for (auto rec = exports; rec->name; rec++) {
-            native_methods.emplace(rec->name, native_method_t{ context, rec->func });
-        }
-        return;
-    }
-
-    syntax.load(node.name);
-
-    // collect declarations
-    node.root.process(*this);
 }
 
 NAMESPACE_UBSP_END;

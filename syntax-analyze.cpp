@@ -86,7 +86,7 @@ void syntax_analyzer_t::process(const import_decl_t& node)
         process(node.root);
     }
     catch (undef_module_error) {
-        // pass
+        syntax.missing_modules.insert(node.name);
     }
 }
 
