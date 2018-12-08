@@ -203,6 +203,13 @@ struct infer_defn_t : declaration_i
     PROCESS_DECL;
 };
 
+struct const_defn_t : declaration_i
+{
+    name_t name;
+    number_t value;
+    PROCESS_DECL;
+};
+
 struct func_defn_t : declaration_i
 {
     name_t name;
@@ -259,6 +266,15 @@ struct variable_info_t
     const name_t name;
     stmt_p infer = nullptr;
     name_t func = nullptr;
+
+    static constexpr name_t CONST_FUNC_VALUE = (name_t)-1;
+    bool is_const() const { return func == CONST_FUNC_VALUE; }
+    void set_const(number_t v) {
+        func = CONST_FUNC_VALUE;
+        const_value = v;
+    }
+
+    number_t const_value = 0;
     //int ndims = 0;
 };
 

@@ -104,6 +104,12 @@ int main(int argc, const char *argv[])
     catch (dup_func_defn_error e) {
         std::cerr << "Duplicate definition of function " << e.func << std::endl;
     }
+    catch (const_ndims_error e) {
+        std::cerr << "Wrong dimensions for a constant: " << e.name << std::endl;
+    }
+    catch (const_value_error e) {
+        std::cerr << "Wrong value for a constant " << e.name << ": expected: " << e.const_value << ", actual: " << e.value << std::endl;
+    }
     catch (const char *e) {
         std::cerr << "Error: " << e << std::endl;
     }

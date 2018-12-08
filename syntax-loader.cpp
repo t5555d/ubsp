@@ -186,6 +186,8 @@ int syntax_loader_t::read_token(YYSTYPE *yylval)
                 return IMPORT;
             if (0 == strcmp(buf, "infer"))
                 return INFER;
+            if (0 == strcmp(buf, "const"))
+                return CONST;
 
             // save identifier:
             yylval->ident = syntax.get_ident(buf);
@@ -312,6 +314,7 @@ CREATE_NODE_FUNC_1(stmt_decl, stmt);
 CREATE_NODE_FUNC_3(infer_defn, scope, name, body);
 CREATE_NODE_FUNC_3(func_defn, name, args, body);
 CREATE_NODE_FUNC_1(import_decl, name);
+CREATE_NODE_FUNC_2(const_defn, name, value);
 
 CREATE_NODE_FUNC_1(argument, name);
 
@@ -365,6 +368,11 @@ void syntax_loader_t::register_infer(name_t scope, name_t name, stmt_p stmt)
     register_decl(decl);
 }
 
+void syntax_loader_t::register_const(name_t name, number_t value)
+{
+    auto decl = create_const_defn(name, value);
+    register_decl(decl);
+}
 
 void syntax_loader_t::register_decl(decl_p decl)
 {

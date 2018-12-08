@@ -45,7 +45,7 @@
 %token IF ELSE
 %token DO WHILE FOR
 %token RETURN BREAK CONTINUE
-%token GLOBAL IMPORT INFER
+%token GLOBAL IMPORT INFER CONST
 
 %nonassoc RETURN
 %nonassoc IDENT
@@ -69,10 +69,11 @@
 
 %%
 
-input: defn 
-    | defn input
+input: decl 
+    | decl input
 
-defn: GLOBAL stmt                               { runtime->register_stmt($2); }
+decl: GLOBAL stmt                               { runtime->register_stmt($2); }
+	| CONST IDENT '=' NUMBER					{ runtime->register_const($2, $4); }
     | IMPORT IDENT                              { runtime->register_import($2); }
     | INFER IDENT '=' expr                      { runtime->register_infer(0, $2, $4); }
     | INFER IDENT '{' stmt1N '}'                { runtime->register_infer(0, $2, $4); }

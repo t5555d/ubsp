@@ -76,6 +76,7 @@ private:
     import_decl_t   *create_import_decl(name_t name);
     stmt_decl_t     *create_stmt_decl(stmt_p stmt);
     infer_defn_t    *create_infer_defn(name_t scope, name_t name, stmt_p stmt);
+    const_defn_t    *create_const_defn(name_t name, number_t value);
 
     argument_t      *create_argument(name_t name);
 
@@ -84,6 +85,7 @@ private:
     void register_stmt(stmt_p stmt);
     void register_infer(name_t scope, name_t name, stmt_p stmt);
     void register_infer(name_t scope, name_t name, expr_p expr);
+    void register_const(name_t name, number_t value);
     void register_decl(decl_p stmt);
 
     template<typename T>

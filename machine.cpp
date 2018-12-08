@@ -117,6 +117,15 @@ void machine_t::put(const lvalue_t& lval, number_t n, bool load)
     number_t index[MAX_ARGS];
     int ndims = eval_args(index, lval.index);
 
+    auto global = syntax.get_variable(lval.name);
+    if (global && global->is_const()) {
+        if (ndims != 0)
+            throw const_ndims_error{ lval.name, ndims };
+        if (n != global->const_value)
+            throw const_value_error{ lval.name, n, global->const_value };
+        return;
+    }
+
     if (load) {
         auto& scope = infer_scope ? *infer_scope :
             func_scope ? *func_scope : global_scope;
@@ -133,7 +142,6 @@ void machine_t::put(const lvalue_t& lval, number_t n, bool load)
         debug << " value=\"" << n << "\"/>" << std::endl;
     }
 
-    auto global = syntax.get_variable(lval.name);
     auto& scope = global ? global_scope :
         infer_scope ? *infer_scope : *func_scope;
 

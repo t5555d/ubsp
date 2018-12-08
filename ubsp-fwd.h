@@ -50,6 +50,7 @@ struct stmt_decl_t;
 struct func_defn_t;
 struct import_decl_t;
 struct infer_defn_t;
+struct const_defn_t;
 
 struct lvalue_t;
 struct func_call_t;
@@ -91,6 +92,7 @@ struct decl_processor_i : stmt_processor_i
     virtual void process(const func_defn_t&) = 0;
     virtual void process(const import_decl_t&) = 0;
     virtual void process(const infer_defn_t&) = 0;
+    virtual void process(const const_defn_t&) = 0;
 };
 
 

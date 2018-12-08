@@ -33,6 +33,7 @@ public:
     virtual void process(const func_defn_t&) override;
     virtual void process(const import_decl_t&) override;
     virtual void process(const infer_defn_t&) override;
+    virtual void process(const const_defn_t&) override;
 
     syntax_output_t& operator<<(const char *s) { out << s; return *this; }
     syntax_output_t& operator<<(number_t n) { out << n; return *this; }

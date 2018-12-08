@@ -222,5 +222,9 @@ void syntax_output_t::process(const import_decl_t& node)
     *this << "import " << node.name;
 }
 
+void syntax_output_t::process(const const_defn_t& node)
+{
+    *this << "const " << node.name << " = " << node.value;
+}
 
 NAMESPACE_UBSP_END;

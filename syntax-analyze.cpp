@@ -54,6 +54,8 @@ void syntax_analyzer_t::analyze()
             if (it == variables.end())
                 continue;
             auto& info = it->second;
+            if (info.is_const())
+                continue;
             if (info.func)
                 throw dup_var_write_error{ info.name, info.func, func.name };
             info.func = func.name;
@@ -66,7 +68,7 @@ void syntax_analyzer_t::print_variables(std::ostream& out)
 {
     for (auto& value : variables) {
         variable_info_t& var = value.second;
-        out << var.name << ": " << (var.func ? var.func : "(global)") << std::endl;
+        out << var.name << ": " << (var.is_const() ? "(const)" : var.func ? var.func : "(global)") << std::endl;
     }
 }
 
@@ -129,6 +131,12 @@ void syntax_analyzer_t::process(const infer_defn_t& node)
         throw dup_var_infer_error{ node.name };
 
     info.infer = node.body;
+}
+
+void syntax_analyzer_t::process(const const_defn_t& node)
+{
+    auto& info = add_global(node.name);
+    info.set_const(node.value);
 }
 
 //
