@@ -18,7 +18,6 @@
     ubsp::lvalue_t          lval;
     ubsp::binary_oper_type_t  bt;
     ubsp::unary_oper_type_t   ut;
-    ubsp::syntax_node_i    *node;
     ubsp::statement_i      *stmt;
     ubsp::expression_i     *expr;
     ubsp::argument_t       *args;

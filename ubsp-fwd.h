@@ -22,7 +22,6 @@ class syntax_analyzer_t; // syntax analysis runtime
 struct function_info_t;
 struct variable_info_t;
 
-struct syntax_node_i;
 struct declaration_i;
 struct expression_i;
 struct statement_i;

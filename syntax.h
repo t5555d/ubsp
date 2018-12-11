@@ -10,26 +10,20 @@
 
 NAMESPACE_UBSP_BEGIN;
 
-// abstract syntax node
-struct syntax_node_i
-{
-    virtual ~syntax_node_i() {}
-};
-
 // abstract declaration node:
-struct declaration_i : syntax_node_i {
+struct declaration_i {
     mutable decl_p next = nullptr; // linked list of definitions
     virtual void process(decl_processor_i&) const = 0;
 };
 
 // abstract statement
-struct statement_i : syntax_node_i {
+struct statement_i {
     mutable stmt_p next = nullptr; // linked list of statements
     virtual void process(stmt_processor_i&) const = 0;
 };
 
 // abstract expression node
-struct expression_i : syntax_node_i {
+struct expression_i {
     mutable expr_p next = nullptr; // linked list of expressions
     virtual expr_priority_t get_priority() const = 0;
     virtual void process(expr_processor_i&) const = 0;
