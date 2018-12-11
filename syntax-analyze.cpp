@@ -1,6 +1,7 @@
 #include "syntax-analyze.h"
 #include "syntax.h"
 #include "utils.h"
+#include "error.h"
 
 #include <iostream>
 
@@ -89,7 +90,7 @@ void syntax_analyzer_t::process(const import_decl_t& node)
         syntax.load(node.name);
         process(node.root);
     }
-    catch (undef_module_error) {
+    catch (const undef_module_error&) {
         syntax.missing_modules.insert(node.name);
     }
 }

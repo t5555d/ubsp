@@ -330,10 +330,6 @@ private:
     
 };
 
-struct undef_module_error {
-    name_t name;
-};
-
 NAMESPACE_UBSP_END;
 
 #endif // _UBSP_SYNTAX_

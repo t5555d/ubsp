@@ -105,29 +105,6 @@ private:
     virtual void process(const load_stmt_t&) override;
 };
 
-struct undef_var_error {
-    name_t name;
-};
-
-struct infer_var_error {
-    name_t name;
-};
-
-struct undef_func_error {
-    name_t name;
-};
-
-struct const_ndims_error {
-    name_t name;
-    int ndims;
-};
-
-struct const_value_error {
-    name_t name;
-    number_t value;
-    number_t const_value;
-};
-
 NAMESPACE_UBSP_END;
 
 #endif // _UBSP_MACHINE_

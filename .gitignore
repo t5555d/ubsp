@@ -251,3 +251,4 @@ ModelManifest.xml
 /hevc.txt
 *.bit
 *.hevc
+/hevc.xml

@@ -3,6 +3,7 @@
 #include "syntax-analyze.h"
 #include "bitstream.h"
 #include "machine.h"
+#include "error.h"
 #include <iostream>
 #include <fstream>
 
@@ -32,14 +33,8 @@ int main(int argc, const char *argv[])
             analyzer.analyze();
             analyzer.print_variables(std::cout);
         }
-        catch (dup_var_infer_error e) {
-            std::cerr << "Duplicate infer of variable " << e.var << std::endl;
-        }
-        catch (dup_var_write_error e) {
-            std::cerr << "Duplicate write of global variable " << e.var << ": functions " << e.func1 << ", " << e.func2 << std::endl;
-        }
-        catch (dup_func_defn_error e) {
-            std::cerr << "Duplicate definition of function " << e.func << std::endl;
+        catch (const error_t& e) {
+            e.explain(std::cerr);
         }
         return 0;
     }
@@ -80,38 +75,8 @@ int main(int argc, const char *argv[])
         syntax.analyze();
         machine.execute();
     }
-    catch (undef_module_error e) {
-        std::cerr << "Undefined module: " << e.name << std::endl;
-    }
-    catch (undef_func_error e) {
-        std::cerr << "Undefined function: " << e.name << std::endl;
-    }
-    catch (undef_var_error e) {
-        std::cerr << "Undefined variable: " << e.name << std::endl;
-    }
-    catch (infer_var_error e) {
-        std::cerr << "Failed to infer variable: " << e.name << std::endl;
-    }
-    catch (wrong_index_error e) {
-        std::cerr << "Wrong index on dimension " << e.dim << ": " << e.index << ">= " << e.size << std::endl;
-    }
-    catch (dup_var_infer_error e) {
-        std::cerr << "Duplicate infer of variable " << e.var << std::endl;
-    }
-    catch (dup_var_write_error e) {
-        std::cerr << "Duplicate write of global variable " << e.var << ": functions " << e.func1 << ", " << e.func2 << std::endl;
-    }
-    catch (dup_func_defn_error e) {
-        std::cerr << "Duplicate definition of function " << e.func << std::endl;
-    }
-    catch (const_ndims_error e) {
-        std::cerr << "Wrong dimensions for a constant: " << e.name << std::endl;
-    }
-    catch (const_value_error e) {
-        std::cerr << "Wrong value for a constant " << e.name << ": expected: " << e.const_value << ", actual: " << e.value << std::endl;
-    }
-    catch (const char *e) {
-        std::cerr << "Error: " << e << std::endl;
+    catch (const error_t& e) {
+        e.explain(std::cerr);
     }
 
     return 0;

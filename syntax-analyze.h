@@ -57,20 +57,6 @@ private:
     variable_info_t& add_global(name_t var_name);
 };
 
-struct dup_func_defn_error {
-    name_t func;
-};
-
-struct dup_var_infer_error {
-    name_t var;
-};
-
-struct dup_var_write_error {
-    name_t var;
-    name_t func1;
-    name_t func2;
-};
-
 NAMESPACE_UBSP_END;
 
 #endif // _UBSP_SYNTAX_ANALYZE_

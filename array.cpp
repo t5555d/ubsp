@@ -1,13 +1,11 @@
 #include "array.h"
+#include "error.h"
 #include <algorithm>
 
 NAMESPACE_UBSP_BEGIN;
 
 number_t array_t::get(int n, number_t index[])
 {
-    if (ndims != n)
-        throw wrong_ndims_error{ n, ndims };
-
     variant_t *v = &value;
     for (int i = 0; i < ndims; i++) {
         if (v->dim == nullptr)
@@ -22,9 +20,6 @@ number_t array_t::get(int n, number_t index[])
 
 void array_t::put(int n, number_t index[], number_t num)
 {
-    if (ndims != n)
-        throw wrong_ndims_error{ n, ndims };
-
     variant_t *v = &value;
     for (int i = 0; i < ndims; i++) {
         v->dim = assure_size(v->dim, index[i] + 1);

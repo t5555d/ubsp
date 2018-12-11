@@ -6,21 +6,6 @@
 
 NAMESPACE_UBSP_BEGIN;
 
-struct wrong_ndims_error {
-    int req_ndims;
-    int max_ndims;
-};
-
-struct wrong_index_error {
-    number_t index;
-    size_t size;
-    int dim;
-};
-
-struct array_not_init_error {
-    int dim;
-};
-
 constexpr size_t MIN_ARRAY_SIZE = 8;
 
 class array_t
@@ -54,6 +39,7 @@ public:
 
     number_t get(int ndims, number_t index[]);
     void put(int ndims, number_t index[], number_t value);
+    int num_dimensions() const { return ndims; }
 
 private:
 

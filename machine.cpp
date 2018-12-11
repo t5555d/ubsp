@@ -2,6 +2,7 @@
 #include "syntax.h"
 #include "operators.h"
 #include "utils.h"
+#include "error.h"
 #include <iostream>
 
 #include "syntax-output.h"
@@ -109,7 +110,20 @@ number_t machine_t::get(const lvalue_t& lval)
     number_t index[MAX_ARGS];
     int ndims = eval_args(index, lval.index);
 
-    return value.get(ndims, index);
+    if (ndims != value.num_dimensions())
+        throw wrong_ndims_error{ lval.name, ndims, value.num_dimensions() };
+
+    try {
+        return value.get(ndims, index);
+    }
+    catch (wrong_index_error& e) {
+        e.name = lval.name;
+        throw e;
+    }
+    catch (array_not_init_error& e) {
+        e.name = lval.name;
+        throw e;
+    }
 }
 
 void machine_t::put(const lvalue_t& lval, number_t n, bool load)
@@ -146,10 +160,12 @@ void machine_t::put(const lvalue_t& lval, number_t n, bool load)
         infer_scope ? *infer_scope : *func_scope;
 
     auto var = scope.find(lval.name);
-    if (var)
-        var->put(ndims, index, n);
-    else
+    if (var == nullptr)
         scope.vars.emplace(lval.name, array_t(ndims, index, n));
+    else if (ndims != var->num_dimensions())
+        throw wrong_ndims_error{ lval.name, ndims, var->num_dimensions() };
+    else
+        var->put(ndims, index, n);
 }
 
 number_t machine_t::eval(expr_p expr, number_t default_value)

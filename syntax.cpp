@@ -4,6 +4,7 @@
 
 #include "syntax.h"
 #include "syntax-loader.h"
+#include "error.h"
 
 NAMESPACE_UBSP_BEGIN;
 
