@@ -116,6 +116,23 @@ void syntax_analyzer_t::process(const func_defn_t& node)
     process_body(node.body);
 }
 
+void syntax_analyzer_t::process(const enum_defn_t& node)
+{
+    for (args_p var = node.names; var; var = var->next) {
+        auto& global = add_global(var->name);
+        global.enum_values = node.values;
+    }
+
+    number_t value = 0;
+    for (args_p val = node.values; val; val = val->next) {
+        if (val->value_set) value = val->value;
+        auto& global = add_global(val->name);
+        global.set_const(value);
+        global.enum_values = node.values;
+        value++;
+    }
+}
+
 void syntax_analyzer_t::process(const infer_defn_t& node)
 {
     if (node.scope != nullptr) {

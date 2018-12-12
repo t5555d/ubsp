@@ -73,12 +73,14 @@ private:
     for_loop_stmt_t *create_for_loop_stmt(stmt_p init, expr_p cond, stmt_p incr, stmt_p body);
 
     func_defn_t     *create_func_defn(name_t name, args_p args, stmt_p body);
+    enum_defn_t     *create_enum_defn(args_p names, args_p values);
     import_decl_t   *create_import_decl(name_t name);
     stmt_decl_t     *create_stmt_decl(stmt_p stmt);
     infer_defn_t    *create_infer_defn(name_t scope, name_t name, stmt_p stmt);
     const_defn_t    *create_const_defn(name_t name, number_t value);
 
     argument_t      *create_argument(name_t name);
+    argument_t      *create_argument(name_t name, number_t value);
 
     void register_func(name_t name, args_p args, stmt_p body);
     void register_import(name_t name);
@@ -86,6 +88,7 @@ private:
     void register_infer(name_t scope, name_t name, stmt_p stmt);
     void register_infer(name_t scope, name_t name, expr_p expr);
     void register_const(name_t name, number_t value);
+    void register_enum(args_p names, args_p values);
     void register_decl(decl_p stmt);
 
     template<typename T>

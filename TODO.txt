@@ -1,5 +1,5 @@
 TODO
-- support enums and/or tables
++ support enums and/or tables
 + embed init in for loop nodes
 + implement import (e.g. for SEI messages)
 + infer variable values (if they are not loaded)

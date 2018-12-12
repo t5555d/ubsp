@@ -80,7 +80,7 @@ private:
     scope_t global_scope, *func_scope, *infer_scope;
     number_t value;
 
-    array_t& find(name_t name);
+    array_t& find(name_t name, const variable_info_t *global);
 
     number_t call(const function_info_t& func, int argc, number_t argv[MAX_ARGS]);
     number_t call(const func_call_t& call);

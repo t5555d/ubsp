@@ -67,7 +67,7 @@ int machine_t::eval_args(number_t argv[MAX_ARGS], const func_call_t& call)
     return eval_args(argv, call.args);
 }
 
-array_t& machine_t::find(name_t name)
+array_t& machine_t::find(name_t name, const variable_info_t *global)
 {
     array_t *var = nullptr;
     if (infer_scope) {
@@ -80,8 +80,6 @@ array_t& machine_t::find(name_t name)
 
     var = global_scope.find(name);
     if (var) return *var;
-
-    auto global = syntax.get_variable(name);
 
     if (global && global->infer) {
         scope_t scope(name, func_scope);
@@ -105,7 +103,12 @@ number_t machine_t::get(const lvalue_t& lval)
         }
     }
 
-    array_t& value = find(lval.name);
+    auto global = syntax.get_variable(lval.name);
+    if (global && global->is_const()) {
+        return global->const_value;
+    }
+
+    array_t& value = find(lval.name, global);
 
     number_t index[MAX_ARGS];
     int ndims = eval_args(index, lval.index);
@@ -153,7 +156,20 @@ void machine_t::put(const lvalue_t& lval, number_t n, bool load)
                 debug << index[i] << " ";
             debug << "\"";
         }
-        debug << " value=\"" << n << "\"/>" << std::endl;
+        name_t label = nullptr;
+        number_t value = 0;
+        for (args_p val = global->enum_values; val; val = val->next) {
+            if (val->value_set) value = val->value;
+            if (value == n) {
+                label = val->name;
+                break;
+            }
+            value++;
+        }
+        debug << " value=\"" << n << "\"";
+        if (label)
+            debug << " label=\"" << label << "\"";
+        debug << "/>" << std::endl;
     }
 
     auto& scope = global ? global_scope :

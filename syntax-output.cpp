@@ -217,6 +217,22 @@ void syntax_output_t::process(const func_defn_t& node)
     output_block(node.body);
 }
 
+void syntax_output_t::process(const enum_defn_t& node)
+{
+    *this << "enum {\n";
+    for (args_p value = node.values; value; value = value->next) {
+        *this << "    " << value->name;
+        if (value->value_set)
+            *this << " = " << value->value;
+        *this << "\n";
+    }
+    const char *delim = "} ";
+    for (args_p var = node.names; var; var = var->next) {
+        *this << delim << var->name;
+        delim = ", ";
+    }
+}
+
 void syntax_output_t::process(const import_decl_t& node)
 {
     *this << "import " << node.name;

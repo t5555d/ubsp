@@ -188,6 +188,8 @@ int syntax_loader_t::read_token(YYSTYPE *yylval)
                 return INFER;
             if (0 == strcmp(buf, "const"))
                 return CONST;
+            if (0 == strcmp(buf, "enum"))
+                return ENUM;
 
             // save identifier:
             yylval->ident = syntax.get_ident(buf);
@@ -313,10 +315,25 @@ CREATE_NODE_FUNC_3(loop_stmt, cond, body, pre_check);
 CREATE_NODE_FUNC_1(stmt_decl, stmt);
 CREATE_NODE_FUNC_3(infer_defn, scope, name, body);
 CREATE_NODE_FUNC_3(func_defn, name, args, body);
+CREATE_NODE_FUNC_2(enum_defn, names, values);
 CREATE_NODE_FUNC_1(import_decl, name);
 CREATE_NODE_FUNC_2(const_defn, name, value);
 
-CREATE_NODE_FUNC_1(argument, name);
+argument_t *syntax_loader_t::create_argument(name_t name)
+{
+    argument_t *node = alloc_node<argument_t>();
+    node->name = name;
+    return node;
+}
+
+argument_t *syntax_loader_t::create_argument(name_t name, number_t value)
+{
+    argument_t *node = alloc_node<argument_t>();
+    node->name = name;
+    node->value = value;
+    node->value_set = true;
+    return node;
+}
 
 for_loop_stmt_t *syntax_loader_t::create_for_loop_stmt(stmt_p init, expr_p cond, stmt_p incr, stmt_p body)
 {
@@ -371,6 +388,12 @@ void syntax_loader_t::register_infer(name_t scope, name_t name, stmt_p stmt)
 void syntax_loader_t::register_const(name_t name, number_t value)
 {
     auto decl = create_const_defn(name, value);
+    register_decl(decl);
+}
+
+void syntax_loader_t::register_enum(args_p names, args_p values)
+{
+    auto decl = create_enum_defn(names, values);
     register_decl(decl);
 }
 

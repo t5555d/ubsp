@@ -34,6 +34,7 @@
 %type <stmt> stmt stmt1N stmt0N
 %type <stmt> init init1N init0N
 %type <args> args args1N args0N
+%type <args> enum enum1N
 %type <expr> expr expr1N expr0N 
 %type <expr> chng index0N
 %type <call> call
@@ -44,7 +45,7 @@
 %token IF ELSE
 %token DO WHILE FOR
 %token RETURN BREAK CONTINUE
-%token GLOBAL IMPORT INFER CONST
+%token GLOBAL IMPORT INFER CONST ENUM
 
 %nonassoc RETURN
 %nonassoc IDENT
@@ -73,6 +74,7 @@ input: decl
 
 decl: GLOBAL stmt                               { runtime->register_stmt($2); }
 	| CONST IDENT '=' NUMBER					{ runtime->register_const($2, $4); }
+	| ENUM '{' enum1N '}' args1N				{ runtime->register_enum($5, $3); }
     | IMPORT IDENT                              { runtime->register_import($2); }
     | INFER IDENT '=' expr                      { runtime->register_infer(0, $2, $4); }
     | INFER IDENT '{' stmt1N '}'                { runtime->register_infer(0, $2, $4); }
@@ -146,6 +148,10 @@ index0N: /*empty*/              { $$ = nullptr; }
 args: IDENT                     { $$ = runtime->create_argument($1); }
 args1N: args | args ',' args1N  { $$ = runtime->chain($1, $3); }
 args0N: args1N | /*empty*/      { $$ = nullptr; }
+
+enum: IDENT						{ $$ = runtime->create_argument($1); }
+	| IDENT '=' NUMBER			{ $$ = runtime->create_argument($1, $3); }
+enum1N: enum | enum enum1N		{ $$ = runtime->chain($1, $2); }
 
 init1N: init | init ',' init1N  { $$ = runtime->chain($1, $3); }
 init0N: init1N | /*empty*/      { $$ = nullptr; }

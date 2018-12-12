@@ -47,6 +47,7 @@ struct load_stmt_t;
 struct root_node_t;
 struct stmt_decl_t;
 struct func_defn_t;
+struct enum_defn_t;
 struct import_decl_t;
 struct infer_defn_t;
 struct const_defn_t;
@@ -89,6 +90,7 @@ struct decl_processor_i : stmt_processor_i
     virtual void process(const root_node_t&) = 0;
     virtual void process(const stmt_decl_t&) = 0;
     virtual void process(const func_defn_t&) = 0;
+    virtual void process(const enum_defn_t&) = 0;
     virtual void process(const import_decl_t&) = 0;
     virtual void process(const infer_defn_t&) = 0;
     virtual void process(const const_defn_t&) = 0;

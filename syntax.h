@@ -40,6 +40,8 @@ struct argument_t
 {
     mutable args_p next = nullptr; // linked list of arguments
     name_t name;
+    number_t value;
+    bool value_set = false;
 };
 
 // generic lvalue (i.e. variable)
@@ -204,6 +206,13 @@ struct const_defn_t : declaration_i
     PROCESS_DECL;
 };
 
+struct enum_defn_t : declaration_i
+{
+    args_p names;
+    args_p values;
+    PROCESS_DECL;
+};
+
 struct func_defn_t : declaration_i
 {
     name_t name;
@@ -268,6 +277,7 @@ struct variable_info_t
         const_value = v;
     }
 
+    args_p enum_values = nullptr;
     number_t const_value = 0;
     //int ndims = 0;
 };
