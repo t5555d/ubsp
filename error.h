@@ -11,36 +11,74 @@ struct error_t : public std::exception
     virtual void explain(std::ostream& out) const = 0;
 };
 
-struct undef_module_error : error_t
+enum entity_t
+{
+    VARIABLE,
+    FUNCTION,
+    MODULE,
+    INFER_DEFN,
+    CONST_DEFN,
+    ENUM_DEFN,
+};
+
+template<entity_t entity>
+struct entity_traits {};
+
+template<>
+struct entity_traits<VARIABLE>
+{
+    static constexpr const char *NAME = "variable";
+};
+
+template<>
+struct entity_traits<FUNCTION>
+{
+    static constexpr const char *NAME = "function";
+};
+
+template<>
+struct entity_traits<MODULE>
+{
+    static constexpr const char *NAME = "module";
+};
+
+template<>
+struct entity_traits<INFER_DEFN>
+{
+    static constexpr const char *NAME = "infer";
+};
+
+template<>
+struct entity_traits<CONST_DEFN>
+{
+    static constexpr const char *NAME = "const";
+};
+
+template<>
+struct entity_traits<ENUM_DEFN>
+{
+    static constexpr const char *NAME = "enum";
+};
+
+template<entity_t ENTITY>
+struct undef_error : error_t
 {
     name_t name;
     
-    undef_module_error(name_t n) : name(n) {}
-    const char *what() const override { return "Undefined module"; }
+    undef_error(name_t n) : name(n) {}
     void explain(std::ostream& out) const override {
-        out << "Undefined module: " << name;
+        out << "Undefined " << entity_traits<ENTITY>::NAME << ": " << name;
     }
 };
 
-struct undef_var_error : error_t
+template<entity_t ENTITY>
+struct duplicate_error : error_t
 {
     name_t name;
-    
-    undef_var_error(name_t n) : name(n) {}
-    const char *what() const override { return "Undefined variable"; }
-    void explain(std::ostream& out) const override {
-        out << "Undefined variable: " << name;
-    }
-};
 
-struct undef_func_error : error_t
-{
-    name_t name;
-    
-    undef_func_error(name_t n) : name(n) {}
-    const char *what() const override { return "Undefined function"; }
+    duplicate_error(name_t n) : name(n) {}
     void explain(std::ostream& out) const override {
-        out << "Undefined function: " << name;
+        out << "Duplicate " << entity_traits<ENTITY>::NAME << ": " << name;
     }
 };
 
@@ -79,39 +117,6 @@ struct const_value_error : error_t
     const char *what() const override { return "Wrong dimensions for constant"; }
     void explain(std::ostream& out) const override {
         out << "Wrong value for a constant " << name << ": expected: " << const_value << ", actual: " << value;
-    }
-};
-
-struct dup_func_defn_error : error_t
-{
-    name_t name;
-    
-    dup_func_defn_error(name_t n) : name(n) {}
-    const char *what() const override { return "Duplicate definition of function"; }
-    void explain(std::ostream& out) const override {
-        out << "Duplicate definition of function: " << name;
-    }
-};
-
-struct dup_var_infer_error : error_t
-{
-    name_t name;
-    
-    dup_var_infer_error(name_t n) : name(n) {}
-    const char *what() const override { return "Duplicate infer"; }
-    void explain(std::ostream& out) const override {
-        out << "Duplicate infer of variable: " << name;
-    }
-};
-
-struct dup_enum_defn_error : error_t
-{
-    name_t name;
-
-    dup_enum_defn_error(name_t n) : name(n) {}
-    const char *what() const override { return "Duplicate enum"; }
-    void explain(std::ostream& out) const override {
-        out << "Duplicate enum definition: " << name;
     }
 };
 

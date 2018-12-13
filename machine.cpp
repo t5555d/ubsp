@@ -91,7 +91,7 @@ array_t& machine_t::find(name_t name, const variable_info_t *global)
         if (var) return *var;
     }
 
-    throw undef_var_error{ name };
+    throw undef_error<VARIABLE>(name);
 }
 
 number_t machine_t::get(const lvalue_t& lval)
@@ -209,7 +209,7 @@ void machine_t::execute()
     for (name_t module : syntax.missing_modules) {
         auto obj = native_modules.find(module);
         if (obj == native_modules.end())
-            throw undef_module_error{ module };
+            throw undef_error<MODULE>(module);
 
         // import module functions:
         auto context = obj->second.context;
@@ -252,7 +252,7 @@ number_t machine_t::call(const func_call_t& call)
     if (native_method != native_methods.end())
         return value;
 
-    throw undef_func_error{ call.name };
+    throw undef_error<FUNCTION>(call.name);
 }
 
 number_t machine_t::call(const function_info_t& func, int argc, number_t argv[MAX_ARGS])

@@ -46,7 +46,7 @@ void syntax_t::load(const char *module)
     sprintf(syntax_path, "%s/%s.cfg", modules_path, module);
     FILE *file = fopen(syntax_path, "r");
     if (file == nullptr)
-        throw undef_module_error{ module_id };
+        throw undef_error<MODULE>(module_id);
 
     syntax_loader_t runtime(*this, file, &root);
     loaded_modules.insert(module_id);

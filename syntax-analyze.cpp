@@ -96,7 +96,7 @@ void syntax_analyzer_t::process(const import_decl_t& node)
         syntax.load(node.name);
         process(node.root);
     }
-    catch (const undef_module_error&) {
+    catch (const undef_error<MODULE>&) {
         syntax.missing_modules.insert(node.name);
     }
 }
@@ -114,7 +114,7 @@ void syntax_analyzer_t::process(const func_defn_t& node)
 {
     auto i = functions.find(node.name);
     if (i != functions.end())
-        throw dup_func_defn_error{ node.name };
+        throw duplicate_error<FUNCTION>(node.name);
 
     auto& info = functions[node.name] = function_info_t(node);
     auto prev = remember(func);
@@ -133,11 +133,14 @@ void syntax_analyzer_t::process(const enum_defn_t& node)
 
     if (node.values) {
         if (defn) 
-            throw dup_enum_defn_error(node.name);
+            throw duplicate_error<ENUM_DEFN>(node.name);
         defn = &node;
         if (node.name)
             enums.emplace(node.name, defn);
     }
+
+    if (node.vars && !defn)
+        throw undef_error<ENUM_DEFN>(node.name);
 
     for (args_p var = node.vars; var; var = var->next) {
         auto& global = add_global(var->name);
@@ -167,7 +170,7 @@ void syntax_analyzer_t::process(const infer_defn_t& node)
 
     auto& info = add_global(node.name);
     if (info.infer)
-        throw dup_var_infer_error{ node.name };
+        throw duplicate_error<INFER_DEFN>(node.name);
 
     info.infer = node.body;
 }
