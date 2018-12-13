@@ -46,6 +46,7 @@ private:
     syntax_t& syntax;
     std::map<name_t, function_info_t>& functions;
     std::map<name_t, variable_info_t>& variables;
+    std::map<name_t, const enum_defn_t *> enums;
 
     function_info_t *func = nullptr;
 

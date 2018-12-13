@@ -208,8 +208,9 @@ struct const_defn_t : declaration_i
 
 struct enum_defn_t : declaration_i
 {
-    args_p names;
+    name_t name;
     args_p values;
+    args_p vars;
     PROCESS_DECL;
 };
 
@@ -277,7 +278,9 @@ struct variable_info_t
         const_value = v;
     }
 
-    args_p enum_values = nullptr;
+    void set_enum(const enum_defn_t *defn);
+
+    const enum_defn_t *enum_defn = nullptr;
     number_t const_value = 0;
     //int ndims = 0;
 };

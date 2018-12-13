@@ -74,7 +74,9 @@ input: decl
 
 decl: GLOBAL stmt                               { runtime->register_stmt($2); }
 	| CONST IDENT '=' NUMBER					{ runtime->register_const($2, $4); }
-	| ENUM '{' enum1N '}' args1N				{ runtime->register_enum($5, $3); }
+	| ENUM IDENT '{' enum1N '}' args0N			{ runtime->register_enum($2, $4, $6); }
+	| ENUM IDENT args1N							{ runtime->register_enum($2, nullptr, $3); }
+	| ENUM '{' enum1N '}' args1N				{ runtime->register_enum(nullptr, $3, $5); }
     | IMPORT IDENT                              { runtime->register_import($2); }
     | INFER IDENT '=' expr                      { runtime->register_infer(0, $2, $4); }
     | INFER IDENT '{' stmt1N '}'                { runtime->register_infer(0, $2, $4); }

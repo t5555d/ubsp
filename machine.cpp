@@ -156,19 +156,23 @@ void machine_t::put(const lvalue_t& lval, number_t n, bool load)
                 debug << index[i] << " ";
             debug << "\"";
         }
-        name_t label = nullptr;
-        number_t value = 0;
-        for (args_p val = global->enum_values; val; val = val->next) {
-            if (val->value_set) value = val->value;
-            if (value == n) {
-                label = val->name;
-                break;
-            }
-            value++;
-        }
         debug << " value=\"" << n << "\"";
-        if (label)
-            debug << " label=\"" << label << "\"";
+        if (global->enum_defn) {
+            name_t label = nullptr;
+            number_t value = 0;
+            for (args_p val = global->enum_defn->values; val; val = val->next) {
+                if (val->value_set) value = val->value;
+                if (value == n) {
+                    label = val->name;
+                    break;
+                }
+                value++;
+            }
+            if (label)
+                debug << " label=\"" << label << "\"";
+            if (global->enum_defn->name)
+                debug << " type=\"" << global->enum_defn->name << "\"";
+        }
         debug << "/>" << std::endl;
     }
 

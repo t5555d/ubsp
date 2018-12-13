@@ -104,6 +104,33 @@ struct dup_var_infer_error : error_t
     }
 };
 
+struct dup_enum_defn_error : error_t
+{
+    name_t name;
+
+    dup_enum_defn_error(name_t n) : name(n) {}
+    const char *what() const override { return "Duplicate enum"; }
+    void explain(std::ostream& out) const override {
+        out << "Duplicate enum definition: " << name;
+    }
+};
+
+struct dup_var_decl_error : error_t
+{
+    name_t name;
+    name_t type1;
+    name_t type2;
+
+    dup_var_decl_error(name_t n, name_t t1, name_t t2) :
+        name(n), type1(t1), type2(t2) {}
+    const char *what() const override { return "Duplicate variable declaration"; }
+    void explain(std::ostream& out) const override {
+        name_t t1 = type1 ? type1 : "(anonymous)";
+        name_t t2 = type2 ? type2 : "(anonymous)";
+        out << "Variable " << name << " is declared with different types: " << t1 << " vs " << t2;
+    }
+};
+
 struct dup_var_write_error : error_t
 {
     name_t name;

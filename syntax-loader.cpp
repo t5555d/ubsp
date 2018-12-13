@@ -315,7 +315,7 @@ CREATE_NODE_FUNC_3(loop_stmt, cond, body, pre_check);
 CREATE_NODE_FUNC_1(stmt_decl, stmt);
 CREATE_NODE_FUNC_3(infer_defn, scope, name, body);
 CREATE_NODE_FUNC_3(func_defn, name, args, body);
-CREATE_NODE_FUNC_2(enum_defn, names, values);
+CREATE_NODE_FUNC_3(enum_defn, name, values, vars);
 CREATE_NODE_FUNC_1(import_decl, name);
 CREATE_NODE_FUNC_2(const_defn, name, value);
 
@@ -391,9 +391,9 @@ void syntax_loader_t::register_const(name_t name, number_t value)
     register_decl(decl);
 }
 
-void syntax_loader_t::register_enum(args_p names, args_p values)
+void syntax_loader_t::register_enum(name_t name, args_p values, args_p vars)
 {
-    auto decl = create_enum_defn(names, values);
+    auto decl = create_enum_defn(name, values, vars);
     register_decl(decl);
 }
 

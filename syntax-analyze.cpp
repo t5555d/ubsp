@@ -13,6 +13,12 @@ void syntax_t::analyze()
     analyzer.analyze();
 }
 
+void variable_info_t::set_enum(const enum_defn_t *defn) {
+    if (enum_defn && enum_defn != defn)
+        throw dup_var_decl_error(name, enum_defn->name, defn->name);
+    enum_defn = defn;
+}
+
 syntax_analyzer_t::syntax_analyzer_t(syntax_t& s) :
     syntax(s), functions(s.function_info), variables(s.variable_info)
 {
@@ -118,17 +124,32 @@ void syntax_analyzer_t::process(const func_defn_t& node)
 
 void syntax_analyzer_t::process(const enum_defn_t& node)
 {
-    for (args_p var = node.names; var; var = var->next) {
+    const enum_defn_t *defn = nullptr;
+    if (node.name) {
+        auto it = enums.find(node.name);
+        if (it != enums.end())
+            defn = it->second;
+    }
+
+    if (node.values) {
+        if (defn) 
+            throw dup_enum_defn_error(node.name);
+        defn = &node;
+        if (node.name)
+            enums.emplace(node.name, defn);
+    }
+
+    for (args_p var = node.vars; var; var = var->next) {
         auto& global = add_global(var->name);
-        global.enum_values = node.values;
+        global.set_enum(defn);
     }
 
     number_t value = 0;
     for (args_p val = node.values; val; val = val->next) {
         if (val->value_set) value = val->value;
         auto& global = add_global(val->name);
+        global.set_enum(defn);
         global.set_const(value);
-        global.enum_values = node.values;
         value++;
     }
 }

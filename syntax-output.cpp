@@ -219,15 +219,21 @@ void syntax_output_t::process(const func_defn_t& node)
 
 void syntax_output_t::process(const enum_defn_t& node)
 {
-    *this << "enum {\n";
-    for (args_p value = node.values; value; value = value->next) {
-        *this << "    " << value->name;
-        if (value->value_set)
-            *this << " = " << value->value;
-        *this << "\n";
+    *this << "enum";
+    if (node.name) 
+        *this << " " << node.name;
+    if (node.values) {
+        *this << " {\n";
+        for (args_p value = node.values; value; value = value->next) {
+            *this << "    " << value->name;
+            if (value->value_set)
+                *this << " = " << value->value;
+            *this << "\n";
+        }
+        *this << "}";
     }
-    const char *delim = "} ";
-    for (args_p var = node.names; var; var = var->next) {
+    const char *delim = " ";
+    for (args_p var = node.vars; var; var = var->next) {
         *this << delim << var->name;
         delim = ", ";
     }
